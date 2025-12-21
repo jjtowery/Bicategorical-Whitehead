@@ -1,6 +1,22 @@
+/-
+Copyright (c) 2025 Judah Towery. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Judah Towery
+-/
+
 import Mathlib.CategoryTheory.Bicategory.Functor.Lax
 import Mathlib.CategoryTheory.Bicategory.Functor.Oplax
-import Mathlib.Tactic.CategoryTheory.Bicategory.Basic
+
+/-!
+
+# The oplax comma bicategory for a lax functor `F : A ⥤ᴸ T` and an oplax functor `G : B ⥤ᵒᵖᴸ T`.
+
+* objects are triples `(a : A, b : B, φ : Fa ⟶ Gb)`
+* 1-cells are triples `(p : a₀ ⟶ a₁, q : b₀ ⟶ b₁, θ : Gq φ₀ ⟶ φ₁ Fp)`
+* 2-cells are pairs `(α : p ⟶ p', β : q ⟶ q')` that satisfy the generalized ice cream 
+cone condition.
+
+-/
 
 namespace CategoryTheory.Bicategory
 
@@ -131,32 +147,175 @@ def whiskerRight {X Y Z : Comma F G} {P Q : X ⟶ Y} (η : P ⟶ Q) (R : Y ⟶ Z
             simp
 
 @[simps]
-def associatorHom {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) : (P ≫ Q) ≫ R ⟶ P ≫ Q ≫ R where
+def associatorHom {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) : 
+    (P ≫ Q) ≫ R ⟶ P ≫ Q ≫ R where
   left := (α_ P.left Q.left R.left).hom
   right := (α_ P.right Q.right R.right).hom
-  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, comp_whiskerRight, whisker_assoc, assoc, Iso.inv_hom_id_assoc, whiskerLeft_comp]
-            rw [←assoc (X.hom ◁ G.mapComp (P.right ≫ Q.right) R.right), ←whiskerLeft_comp, OplaxFunctor.mapComp_assoc_left, whiskerLeft_comp, whiskerLeft_comp]
+  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, comp_whiskerRight, 
+              whisker_assoc, assoc, Iso.inv_hom_id_assoc, whiskerLeft_comp]
+            rw [←assoc (X.hom ◁ G.mapComp (P.right ≫ Q.right) R.right), ←whiskerLeft_comp, 
+              OplaxFunctor.mapComp_assoc_left]
             simp only [whiskerLeft_comp, assoc, pentagon_inv_assoc]
-            rw [←assoc (X.hom ◁ G.map P.right ◁ G.mapComp Q.right R.right), associator_inv_naturality_right, assoc, ←assoc ((α_ (X.hom ≫ G.map P.right) (G.map Q.right) (G.map R.right)).inv), ←associator_inv_naturality_left, assoc, ←assoc ((X.hom ≫ G.map P.right) ◁ G.mapComp Q.right R.right), whisker_exchange]
-            simp only [comp_whiskerLeft, pentagon_inv_hom_hom_hom_inv_assoc, assoc, Iso.inv_hom_id_assoc]
-            rw [←assoc (F.mapComp P.left Q.left ▷ Z.hom ▷ G.map R.right), associator_naturality_left, assoc, ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv ≫ (α_ (F.map P.left) (F.map Q.left) Z.hom).inv ▷ G.map R.right), assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), pentagon_inv_inv_hom_hom_inv, assoc]
-            sorry
+            rw [←assoc (X.hom ◁ G.map P.right ◁ G.mapComp Q.right R.right), 
+              associator_inv_naturality_right, assoc, 
+              ←assoc ((α_ (X.hom ≫ G.map P.right) (G.map Q.right) (G.map R.right)).inv), 
+              ←associator_inv_naturality_left, assoc, 
+              ←assoc ((X.hom ≫ G.map P.right) ◁ G.mapComp Q.right R.right), whisker_exchange]
+            simp only [comp_whiskerLeft, pentagon_inv_hom_hom_hom_inv_assoc, assoc, 
+              Iso.inv_hom_id_assoc]
+            rw [←assoc (F.mapComp P.left Q.left ▷ Z.hom ▷ G.map R.right), 
+              associator_naturality_left, assoc, 
+              ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
+              ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv ≫ 
+               (α_ (F.map P.left) (F.map Q.left) Z.hom).inv ▷ G.map R.right), 
+               assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
+               pentagon_inv_inv_hom_hom_inv, assoc, 
+               ←assoc (F.mapComp P.left Q.left ▷ (Z.hom ≫ G.map R.right)), ←whisker_exchange]
+            simp only [comp_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
+              Iso.inv_hom_id_assoc]
+            rw [←comp_whiskerRight, ←comp_whiskerRight]
+            simp
 
-/-
-(α_ (F.map P.left) (F.map Q.left) (Z.hom ≫ G.map R.right)).inv ≫
-                      F.mapComp P.left Q.left ▷ (Z.hom ≫ G.map R.right) ≫
-                        F.map (P.left ≫ Q.left) ◁ R.f ≫
-                          (α_ (F.map (P.left ≫ Q.left)) (F.map R.left) W.hom).inv ≫
-                            F.mapComp (P.left ≫ Q.left) R.left ▷ W.hom ≫ F.map₂ (α_ P.left Q.left R.left).hom ▷ W.hom
-
-F.map P.left ◁ F.map Q.left ◁ R.f ≫
-                      F.map P.left ◁ (α_ (F.map Q.left) (F.map R.left) W.hom).inv ≫
-                        F.map P.left ◁ F.mapComp Q.left R.left ▷ W.hom ≫
-                          (α_ (F.map P.left) (F.map (Q.left ≫ R.left)) W.hom).inv ≫
-                            F.mapComp P.left (Q.left ≫ R.left) ▷ W.hom
-
--/
-
-def associator {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) : (P ≫ Q) ≫ R ≅ P ≫ Q ≫ R where
+@[simps]
+def associatorInv {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) :
+    P ≫ Q ≫ R ⟶ (P ≫ Q) ≫ R where
+  left := (α_ P.left Q.left R.left).inv
+  right := (α_ P.right Q.right R.right).inv
+  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, whiskerLeft_comp, assoc, 
+              comp_whiskerRight, whisker_assoc, Iso.inv_hom_id_assoc]
+            rw [←assoc (X.hom ◁ G.mapComp (P.right ≫ Q.right) R.right), ←whiskerLeft_comp, 
+              OplaxFunctor.mapComp_assoc_left, 
+              ←assoc (X.hom ◁ G.map₂ (α_ P.right Q.right R.right).inv), ←whiskerLeft_comp, 
+              ←assoc (G.map₂ (α_ P.right Q.right R.right).inv), ←PrelaxFunctor.map₂_comp]
+            simp only [Iso.inv_hom_id, PrelaxFunctor.map₂_id, id_comp, whiskerLeft_comp, 
+              assoc, pentagon_inv_assoc]
+            rw [←assoc (X.hom ◁ G.map P.right ◁ G.mapComp Q.right R.right), 
+              associator_inv_naturality_right, assoc, 
+              ←assoc (α_ (X.hom ≫ G.map P.right) (G.map Q.right) (G.map R.right)).inv, 
+              ←associator_inv_naturality_left, 
+              ←assoc ((α_ (F.map P.left) Y.hom (G.map (Q.right ≫ R.right))).hom),
+              ←associator_naturality_right, assoc, ←assoc (P.f ▷ G.map (Q.right ≫ R.right)), 
+              ←whisker_exchange]
+            simp only [comp_whiskerLeft, whiskerRight_comp, assoc, 
+              pentagon_hom_hom_inv_hom_hom_assoc, Iso.inv_hom_id_assoc, Iso.hom_inv_id, comp_id]
+            rw [←assoc (F.mapComp P.left Q.left ▷ Z.hom ▷ G.map R.right), 
+              associator_naturality_left, assoc, 
+              ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
+              ←assoc (((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv ≫ 
+              (α_ (F.map P.left) (F.map Q.left) Z.hom).inv ▷ G.map R.right)), 
+              assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
+              pentagon_inv_inv_hom_hom_inv, assoc, 
+              ←assoc (F.mapComp P.left Q.left ▷ (Z.hom ≫ G.map R.right)), ←whisker_exchange]
+            simp only [comp_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
+              Iso.inv_hom_id_assoc]
+            rw [←assoc ((α_ (F.map P.left ≫ F.map Q.left) (F.map R.left) W.hom).inv), 
+              ←associator_inv_naturality_left, assoc, 
+              ←assoc (F.map P.left ◁ F.mapComp Q.left R.left ▷ W.hom), 
+              associator_inv_naturality_middle, assoc, 
+              ←assoc ((F.map P.left ◁ F.mapComp Q.left R.left) ▷ W.hom), ←comp_whiskerRight, 
+              LaxFunctor.mapComp_assoc_right, comp_whiskerRight, assoc, ←comp_whiskerRight, 
+              assoc, assoc, ←PrelaxFunctor.map₂_comp]
+            simp
+            
+/-- Associator, given directly by the associator on the base category. -/
+@[simps]
+def associator {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) : 
+    (P ≫ Q) ≫ R ≅ P ≫ Q ≫ R where
   hom := associatorHom P Q R
-  inv := sorry
+  inv := associatorInv P Q R
+
+@[simps]
+def leftUnitorHom {X Y : Comma F G} (P : X ⟶ Y) : 𝟙 X ≫ P ⟶ P where
+  left := (λ_ P.left).hom
+  right := (λ_ P.right).hom
+  icc := by simp only [id_def, comp_def, comp₁_right, id₁_right, comp₁_left, id₁_left, comp₁_f, 
+              id₁_f, comp_whiskerRight, whisker_assoc, leftUnitor_inv_whiskerRight, assoc, 
+              triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc, OplaxFunctor.map₂_leftUnitor, 
+              whiskerLeft_comp]
+            rw [←assoc (F.mapId X.left ▷ X.hom ▷ G.map P.right), associator_naturality_left, assoc, 
+              ←assoc ((α_ (𝟙 (F.obj X.left)) X.hom (G.map P.right)).inv), Iso.inv_hom_id, id_comp, 
+              ←assoc (F.mapId X.left ▷ (X.hom ≫ G.map P.right)), ←whisker_exchange]
+            simp only [id_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
+              Iso.inv_hom_id_assoc]
+            rw [←comp_whiskerRight, ←comp_whiskerRight, ←LaxFunctor.map₂_leftUnitor_hom]
+            simp
+
+@[simps]
+def leftUnitorInv {X Y : Comma F G} (P : X ⟶ Y) : P ⟶ 𝟙 X ≫ P where
+  left := (λ_ P.left).inv
+  right := (λ_ P.right).inv
+  icc := by simp only [id_def, comp_def, comp₁_left, id₁_left, LaxFunctor.map₂_leftUnitor, 
+              comp_whiskerRight, leftUnitor_inv_whiskerRight, assoc, comp₁_right, id₁_right, 
+              comp₁_f, id₁_f, whisker_assoc, triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc]
+            rw [←assoc (F.mapId X.left ▷ X.hom ▷ G.map P.right), associator_naturality_left, assoc, 
+              ←assoc ((α_ (𝟙 (F.obj X.left)) X.hom (G.map P.right)).inv), Iso.inv_hom_id, id_comp, 
+              ←assoc (F.mapId X.left ▷ (X.hom ≫ G.map P.right)), ←whisker_exchange]
+            simp only [id_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
+              Iso.inv_hom_id_assoc]
+            rw [←assoc (X.hom ◁ G.mapComp (𝟙 X.right) P.right), ←whiskerLeft_comp, 
+              ←assoc (X.hom ◁ (G.mapComp (𝟙 X.right) P.right ≫ G.mapId X.right ▷ G.map P.right)), 
+              ←whiskerLeft_comp, assoc, ←OplaxFunctor.map₂_leftUnitor, 
+              ←assoc (X.hom ◁ G.map₂ (λ_ P.right).inv), ←whiskerLeft_comp, ←PrelaxFunctor.map₂_comp]
+            simp
+            
+/-- Left unitor, given directly by the left unitor on the base category. -/
+@[simps]
+def leftUnitor {X Y : Comma F G} (P : X ⟶ Y) : 𝟙 X ≫ P ≅ P where
+  hom := leftUnitorHom P
+  inv := leftUnitorInv P
+
+@[simps]
+def rightUnitorHom {X Y : Comma F G} (P : X ⟶ Y) : P ≫ 𝟙 Y ⟶ P where
+  left := (ρ_ P.left).hom
+  right := (ρ_ P.right).hom
+  icc := by simp only [id_def, comp_def, comp₁_right, id₁_right, comp₁_left, id₁_left, comp₁_f, 
+              id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, 
+              OplaxFunctor.map₂_rightUnitor]
+            rw [←assoc (F.map P.left ◁ Y.hom ◁ G.mapId Y.right), associator_inv_naturality_right, 
+              assoc, ←assoc ((α_ (F.map P.left) Y.hom (G.map (𝟙 Y.right))).hom), Iso.hom_inv_id, 
+              id_comp, ←assoc (P.f ▷ G.map (𝟙 Y.right)), ←whisker_exchange]
+            simp only [comp_whiskerLeft, whiskerRight_id, assoc, Iso.inv_hom_id_assoc]
+            rw [←assoc (F.map P.left ◁ F.mapId Y.left ▷ Y.hom), associator_inv_naturality_middle, 
+            assoc, ←comp_whiskerRight, ←comp_whiskerRight, ←LaxFunctor.map₂_rightUnitor_hom]
+            simp
+
+@[simps]
+def rightUnitorInv {X Y : Comma F G} (P : X ⟶ Y) : P ⟶ P ≫ 𝟙 Y where
+  left := (ρ_ P.left).inv
+  right := (ρ_ P.right).inv
+  icc := by simp only [id_def, comp_def, comp₁_left, id₁_left, LaxFunctor.map₂_rightUnitor, 
+              comp_whiskerRight, whisker_assoc, assoc, triangle_assoc_comp_right_inv_assoc, 
+              comp₁_right, id₁_right, comp₁_f, id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor]
+            rw [←assoc (F.map P.left ◁ Y.hom ◁ G.mapId Y.right), associator_inv_naturality_right, 
+              assoc, ←assoc ((α_ (F.map P.left) Y.hom (G.map (𝟙 Y.right))).hom), Iso.hom_inv_id, 
+              id_comp, ←assoc (P.f ▷ G.map (𝟙 Y.right)), ←whisker_exchange]
+            simp only [comp_whiskerLeft, whiskerRight_id, assoc, Iso.inv_hom_id_assoc]
+            rw [rightUnitor_comp, assoc, 
+              ←assoc ((α_ X.hom (G.map P.right) (𝟙 (G.obj Y.right))).inv), Iso.inv_hom_id, id_comp, 
+              ←assoc (X.hom ◁ G.mapComp P.right (𝟙 Y.right)), ←whiskerLeft_comp, 
+              ←assoc (X.hom ◁ (G.mapComp P.right (𝟙 Y.right) ≫ G.map P.right ◁ G.mapId Y.right)), 
+              ←whiskerLeft_comp, assoc, ←OplaxFunctor.map₂_rightUnitor, 
+              ←assoc (X.hom ◁ G.map₂ (ρ_ P.right).inv), ←whiskerLeft_comp, ←PrelaxFunctor.map₂_comp]
+            simp 
+
+/-- Right unitor, given directly by the right unitor on the base category. -/
+@[simps]
+def rightUnitor {X Y : Comma F G} (P : X ⟶ Y) : P ≫ 𝟙 Y ≅ P where
+  hom := rightUnitorHom P
+  inv := rightUnitorInv P
+
+/-- Comma bicategory. -/
+instance : Bicategory (Comma F G) where
+  whiskerLeft P _ _ η := whiskerLeft P η
+  whiskerRight η R := whiskerRight η R
+  associator P Q R := associator P Q R
+  leftUnitor P := leftUnitor P
+  rightUnitor P := rightUnitor P
+  whisker_exchange η θ := by simp only [Hom_def, instCategoryHom, comp_def]
+                             ext
+                             · simp only [comp₁_left, comp₂_left, whiskerLeft_left, 
+                               whiskerRight_left]
+                               rw [whisker_exchange]
+                             simp only [comp₁_right, comp₂_right, whiskerLeft_right, 
+                               whiskerRight_right]
+                             rw [whisker_exchange]
