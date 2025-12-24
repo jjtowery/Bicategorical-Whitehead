@@ -122,14 +122,13 @@ FA₀-----Fp₀---->FA₁ = |     ⇒⇒θ₁⇒⇒    |
 @[ext]
 structure Hom₂ {A B : F ↓ X} (f : A ⟶ B) (g : A ⟶ B) where
   map : f.dom_map ⟶ g.dom_map
-  icc : f.cod_map ≫ (F.map₂ map ▷ B.map) = g.cod_map
+  icc : f.cod_map ≫ (F.map₂ map ▷ B.map) = g.cod_map := by cat_disch
 
 /-- Identity 2-cell.
 For a 1-cell `(p, θ)`, the identity 2-cell is `1_p` -/
 @[simps]
 def id₂ {A B : F ↓ X} (f : A ⟶ B) : Hom₂ F X f f where
   map := 𝟙 f.dom_map
-  icc := by simp
 
 /-- Vertical composition of 2-cells.
 For 1-cells `(p, θ), (p', θ'), (p'', θ'') : (A₀, F₀) ⟶ (A₁, F₁)`
@@ -155,7 +154,7 @@ def whiskerLeft {A B C : F ↓ X} (f : A ⟶ B) {g h : B ⟶ C} (η : g ⟶ h) :
   map := f.dom_map ◁ η.map
   icc := by simp [←η.icc, ←comp_whiskerRight]
             simp
-
+/- 
 @[simp]
 theorem whiskerLeft_id {A B C : F ↓ X} (f : A ⟶ B) (g : B ⟶ C) : 
     whiskerLeft F X f (𝟙 g) = 𝟙 (f ≫ g) := by
@@ -168,7 +167,7 @@ theorem whiskerLeft_comp {A B C : F ↓ X} (f : A ⟶ B) {g h i : B ⟶ C} (η :
     whiskerLeft F X f (η ≫ θ) = whiskerLeft F X f η ≫ whiskerLeft F X f θ := by
   refine Hom₂.ext ?_
   change f.dom_map ◁ (η.map ≫ θ.map) = _ ≫ _ 
-  simp
+  simp -/
 
 /-- Whisker a 2-cell on the right by a 1-cell.
 Comes precisely from the whiskering on `B`. -/
@@ -177,6 +176,7 @@ def whiskerRight {A B C : F ↓ X} {f g : A ⟶ B} (η: f ⟶ g) (h : B ⟶ C) :
   map := η.map ▷ h.dom_map
   icc := by simp [←η.icc, ←assoc (F.map₂ η.map ▷ B.map), ←whisker_exchange, ←comp_whiskerRight]
 
+/- 
 @[simp]
 theorem id_whiskerRight {A B C : F ↓ X} (f : A ⟶ B) (g : B ⟶ C) : whiskerRight F X (𝟙 f) g = 
     𝟙 (f ≫ g) := by
@@ -189,7 +189,7 @@ theorem comp_whiskerRight {A B C : F ↓ X} {f g h : A ⟶ B} (η : f ⟶ g) (θ
     whiskerRight F X (η ≫ θ) i = whiskerRight F X η i ≫ whiskerRight F X θ i := by
   refine Hom₂.ext ?_
   change (η.map ≫ θ.map) ▷ i.dom_map = _ ≫ _
-  simp
+  simp -/
 
 /- Associator forward direction. -/
 @[simps]
@@ -197,7 +197,7 @@ def associatorHom {A B C D : F ↓ X} (f : A ⟶ B) (g : B ⟶ C) (h : C ⟶ D) 
     (f ≫ g) ≫ h ⟶ f ≫ g ≫ h where
   map := by simpa using (α_ f.dom_map g.dom_map h.dom_map).hom
   icc := by simp [←assoc (F.mapComp f.dom_map g.dom_map ▷ C.map), ←whisker_exchange, 
-                  ←Bicategory.comp_whiskerRight]
+              ←Bicategory.comp_whiskerRight]
             rw [whisker_assoc_symm]
             simp
 
@@ -208,11 +208,11 @@ def associatorInv {A B C D : F ↓ X} (f : A ⟶ B) (g : B ⟶ C) (h : C ⟶ D) 
   map := by simpa using (α_ f.dom_map g.dom_map h.dom_map).inv
   icc := by simp [←assoc (F.mapComp f.dom_map g.dom_map ▷ C.map), ←whisker_exchange]
             rw [←assoc ((α_ (F.map f.dom_map) (F.map g.dom_map) (F.map h.dom_map ≫ D.map)).inv), 
-                ←pentagon_inv, assoc, whisker_assoc_symm, assoc, assoc, 
-                ←assoc ((α_ (F.map f.dom_map) (F.map (g.dom_map ≫ h.dom_map)) D.map).hom), 
-                Iso.hom_inv_id, id_comp, ←Bicategory.comp_whiskerRight,
-                ←Bicategory.comp_whiskerRight, assoc, ←Bicategory.comp_whiskerRight, 
-                LaxFunctor.mapComp_assoc_left]
+              ←pentagon_inv, assoc, whisker_assoc_symm, assoc, assoc, 
+              ←assoc ((α_ (F.map f.dom_map) (F.map (g.dom_map ≫ h.dom_map)) D.map).hom), 
+              Iso.hom_inv_id, id_comp, ←Bicategory.comp_whiskerRight,
+              ←Bicategory.comp_whiskerRight, assoc, ←Bicategory.comp_whiskerRight, 
+              LaxFunctor.mapComp_assoc_left]
             simp
 
 /- Associator isomorphism part 1 -/
