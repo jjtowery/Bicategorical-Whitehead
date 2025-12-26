@@ -327,12 +327,7 @@ instance : Bicategory (Comma F G) where
   rightUnitor P := rightUnitor P
   whisker_exchange η θ := by simp only [instCategoryHom, comp_def]
                              ext
-                             · simp only [comp₁_left, comp₂_left, whiskerLeft_left, 
-                               whiskerRight_left]
-                               rw [whisker_exchange]
-                             simp only [comp₁_right, comp₂_right, whiskerLeft_right, 
-                               whiskerRight_right]
-                             rw [whisker_exchange]
+                             all_goals simp [whisker_exchange]
 
 @[simp]
 theorem eqToHom_left {X Y : Comma F G} {P Q : X ⟶ Y} (e : P = Q) : 
@@ -355,20 +350,20 @@ variable {H : A ⥤ᴸ T} (η : Lax.LaxTrans H F)
 def obj (X : Comma F G) : Comma H G where 
   left := X.left 
   right := X.right 
-  hom := (η.app X.left ≫ X.hom)
+  hom := η.app X.left ≫ X.hom
 
 /-- Action of the change-of-left-leg functor on 1-cells. -/
 @[simps]
-def map {X Y : Comma F G} (P : X ⟶ Y) : (obj η X ⟶ obj η Y) where 
+def map {X Y : Comma F G} (P : X ⟶ Y) : obj η X ⟶ obj η Y where 
   left := P.left 
   right := P.right 
-  f := ((α_ (η.app X.left) X.hom (G.map P.right)).hom ≫ (η.app X.left) ◁ P.f ≫ 
-    (α_ (η.app X.left) (F.map P.left) Y.hom).inv ≫ (η.naturality P.left) ▷ Y.hom ≫ 
-    (α_ (H.map P.left) (η.app Y.left) Y.hom).hom)
+  f := (α_ (η.app X.left) X.hom (G.map P.right)).hom ≫ η.app X.left ◁ P.f ≫ 
+       (α_ (η.app X.left) (F.map P.left) Y.hom).inv ≫ η.naturality P.left ▷ Y.hom ≫ 
+       (α_ (H.map P.left) (η.app Y.left) Y.hom).hom
 
 /-- Action of the change-of-left-leg functor on 2-cells. -/
 @[simps]
-def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : (map η P ⟶ map η Q) where 
+def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : map η P ⟶ map η Q where 
   left := θ.left 
   right := θ.right 
   icc := by simp only [obj_left, obj_right, obj_hom, map_right, map_left, map_f, whiskerRight_comp, 
@@ -384,8 +379,8 @@ def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : (map η P ⟶ map 
 theorem map_id (X : Comma F G) : map η (𝟙 X) = 𝟙 (obj η X) := by
   simp only [id_def]
   apply Hom₁.ext
-  all_goals simp only [obj_left, obj_right, obj_hom, map_right, Comma.id₁_right, map_left, 
-    Comma.id₁_left, map_f, Comma.id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, 
+  all_goals simp only [obj_left, obj_right, obj_hom, map_right, id₁_right, map_left, 
+    id₁_left, map_f, id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, 
     comp_whiskerLeft, whiskerRight_comp, heq_eq_eq, Iso.cancel_iso_hom_left]
   rw [←assoc (η.app X.left ◁ F.mapId X.left ▷ X.hom), associator_inv_naturality_middle, assoc, 
     ←assoc ((η.app X.left ◁ F.mapId X.left) ▷ X.hom), ←comp_whiskerRight, 
@@ -397,8 +392,8 @@ theorem map_comp {X Y Z : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) :
     map η (P ≫ Q) = map η P ≫ map η Q := by
   simp only [Comma.comp_def]
   apply Hom₁.ext
-  all_goals simp only [obj_left, obj_right, obj_hom, map_right, Comma.comp₁_right, map_left, 
-    Comma.comp₁_left, map_f, Comma.comp₁_f, whiskerLeft_comp, assoc, comp_whiskerLeft, 
+  all_goals simp only [obj_left, obj_right, obj_hom, map_right, comp₁_right, map_left, 
+    comp₁_left, map_f, comp₁_f, whiskerLeft_comp, assoc, comp_whiskerLeft, 
     comp_whiskerRight, whisker_assoc, whiskerRight_comp,
     pentagon_hom_inv_inv_inv_inv_assoc, pentagon_assoc, pentagon_inv_hom_hom_hom_inv_assoc, 
     Iso.inv_hom_id_assoc, heq_eq_eq, Iso.cancel_iso_hom_left]
@@ -419,81 +414,6 @@ theorem map_comp {X Y Z : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) :
     whisker_exchange]
   simp
 
-@[simp]
-theorem map₂_whisker_left {X Y Z : Comma F G} (P : X ⟶ Y) {Q R : Y ⟶ Z} (θ : Q ⟶ R) : 
-    map₂ η (P ◁ θ) = eqToHom (map_comp η P Q) ≫ map η P ◁ map₂ η θ 
-    ≫ eqToHom (map_comp η P R).symm := by
-  simp only [Comma.instCategoryHom, Comma.inst, Comma.comp_def]
-  ext
-  · simp only [obj_left, map_left, Comma.comp₁_left, map₂_left, Comma.whiskerLeft_left, 
-      Comma.comp₂_left]
-    rw [Comma.eqToHom_left, Comma.eqToHom_left]
-    simp
-  simp only [obj_right, map_right, Comma.comp₁_right, map₂_right, Comma.whiskerLeft_right, 
-    Comma.comp₂_right]
-  rw [Comma.eqToHom_right, Comma.eqToHom_right]
-  simp
-  
-@[simp]
-theorem map₂_whisker_right {X Y Z : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) (R : Y ⟶ Z) : 
-    map₂ η (θ ▷ R) = eqToHom (map_comp η P R) ≫ map₂ η θ ▷ map η R 
-    ≫ eqToHom (map_comp η Q R).symm := by
-  simp only [Comma.instCategoryHom, Comma.inst, Comma.comp_def]
-  ext
-  · simp only [obj_left, map_left, Comma.comp₁_left, map₂_left, Comma.whiskerRight_left, 
-      Comma.comp₂_left]
-    rw [Comma.eqToHom_left, Comma.eqToHom_left]
-    simp
-  simp only [obj_right, map_right, Comma.comp₁_right, map₂_right, Comma.whiskerRight_right, 
-    Comma.comp₂_right]
-  rw [Comma.eqToHom_right, Comma.eqToHom_right]
-  simp
-
-@[simp]
-theorem map₂_left_unitor {X Y : Comma F G} (P : X ⟶ Y) : 
-    map₂ η (λ_ P).hom = eqToHom (by rw [map_comp η (𝟙 X) P, map_id η X]) ≫ (λ_ (map η P)).hom := by
-  simp only [Comma.instCategoryHom, Comma.inst, Comma.id_def, Comma.comp_def, 
-    Comma.leftUnitor_hom]
-  ext
-  · simp only [obj_left, map_left, Comma.comp₁_left, Comma.id₁_left, map₂_left, 
-      Comma.leftUnitorHom_left, Comma.comp₂_left]
-    rw [Comma.eqToHom_left]
-    simp
-  simp only [obj_right, map_right, Comma.comp₁_right, Comma.id₁_right, map₂_right, 
-    Comma.leftUnitorHom_right, Comma.comp₂_right]
-  rw [Comma.eqToHom_right]
-  simp
-
-@[simp]
-theorem map₂_right_unitor {X Y : Comma F G} (P : X ⟶ Y) : 
-    map₂ η (ρ_ P).hom = eqToHom (by rw [map_comp η P (𝟙 Y), map_id η Y]) ≫ (ρ_ (map η P)).hom := by
-  simp only [Comma.instCategoryHom, Comma.inst, Comma.id_def, Comma.comp_def, 
-    Comma.rightUnitor_hom]
-  ext
-  · simp only [obj_left, map_left, Comma.comp₁_left, Comma.id₁_left, map₂_left, 
-      Comma.rightUnitorHom_left, Comma.comp₂_left]
-    rw [Comma.eqToHom_left]
-    simp
-  simp only [obj_right, map_right, Comma.comp₁_right, Comma.id₁_right, map₂_right, 
-    Comma.rightUnitorHom_right, Comma.comp₂_right]
-  rw [Comma.eqToHom_right]
-  simp
-
-@[simp]
-theorem map₂_associator {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) : 
-    map₂ η (α_ P Q R).hom = eqToHom (by simp only [map_comp]) ≫ 
-    (α_ (map η P) (map η Q) (map η R)).hom ≫ eqToHom (by simp only [map_comp]) := by
-  simp only [Comma.instCategoryHom, Comma.inst, Comma.comp_def, Comma.associator_hom]
-  ext
-  · simp only [obj_left, map_left, Comma.comp₁_left, map₂_left, Comma.associatorHom_left, 
-    Comma.comp₂_left]
-    rw [Comma.eqToHom_left, Comma.eqToHom_left]
-    simp
-  simp only [obj_right, map_right, Comma.comp₁_right, map₂_right, Comma.associatorHom_right, 
-    Comma.comp₂_right]
-  rw [Comma.eqToHom_right, Comma.eqToHom_right]
-  simp
-
 @[simps]
 def core : StrictPseudofunctorCore (Comma F G) (Comma H G) where
   obj := obj η
@@ -501,11 +421,6 @@ def core : StrictPseudofunctorCore (Comma F G) (Comma H G) where
   map₂ := map₂ η
   map_id := map_id η
   map_comp := map_comp η
-  map₂_whisker_left := map₂_whisker_left η
-  map₂_whisker_right := map₂_whisker_right η
-  map₂_left_unitor := map₂_left_unitor η
-  map₂_right_unitor := map₂_right_unitor η
-  map₂_associator := map₂_associator η
 
 /-- The change of left leg strict pseudofunctor. -/
 @[simps!]
@@ -516,5 +431,83 @@ end mapLeft
 namespace mapRight
 
 variable {H : B ⥤ᵒᵖᴸ T} (η : Oplax.LaxTrans G H)
+
+/-- Action of the change-of-right-leg functor on objects. -/
+@[simps]
+def obj (X : Comma F G) : Comma F H where 
+  left := X.left 
+  right := X.right 
+  hom := X.hom ≫ η.app X.right
+
+/-- Action of the change-of-right-leg functor on 1-cells. -/
+@[simps]
+def map {X Y : Comma F G} (P : X ⟶ Y) : obj η X ⟶ obj η Y where 
+  left := P.left 
+  right := P.right 
+  f := (α_ X.hom (η.app X.right) (H.map P.right)).hom ≫ X.hom ◁ η.naturality P.right ≫ 
+       (α_ X.hom (G.map P.right) (η.app Y.right)).inv ≫ P.f ▷ η.app Y.right ≫ 
+       (α_ (F.map P.left) Y.hom (η.app Y.right)).hom
+
+/-- Action of the change-of-right-leg functor on 2-cells. -/
+@[simps]
+def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : map η P ⟶ map η Q where 
+  left := θ.left 
+  right := θ.right 
+  icc := by simp only [obj_left, obj_right, obj_hom, map_right, map_left, map_f, whiskerRight_comp, 
+              assoc, Iso.hom_inv_id_assoc, comp_whiskerLeft, Iso.inv_hom_id_assoc, 
+              Iso.cancel_iso_hom_left]
+            rw [←assoc (X.hom ◁ η.app X.right ◁ H.map₂ θ.right), ←whiskerLeft_comp, 
+              ←Oplax.LaxTrans.naturality_naturality, whiskerLeft_comp, assoc, 
+              ←assoc (X.hom ◁ G.map₂ θ.right ▷ η.app Y.right), associator_inv_naturality_middle, 
+              assoc, ←assoc (P.f ▷ η.app Y.right), ←comp_whiskerRight, θ.icc]
+            simp
+
+@[simp]
+theorem map_id (X : Comma F G) : map η (𝟙 X) = 𝟙 (obj η X) := by
+  simp only [id_def]
+  apply Hom₁.ext
+  all_goals simp only [obj_left, obj_right, obj_hom, map_right, id₁_right, map_left, id₁_left, 
+    map_f, id₁_f, comp_whiskerRight, whisker_assoc, leftUnitor_inv_whiskerRight, assoc, 
+    triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc, comp_whiskerLeft, whiskerRight_comp, 
+    heq_eq_eq, Iso.cancel_iso_hom_left]
+  rw [←assoc (X.hom ◁ η.naturality (𝟙 X.right)), ←whiskerLeft_comp, Oplax.LaxTrans.naturality_id]
+  simp
+
+@[simp]
+theorem map_comp {X Y Z : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) : 
+    map η (P ≫ Q) = map η P ≫ map η Q := by
+  simp only [comp_def]
+  apply Hom₁.ext
+  all_goals simp only [obj_left, obj_right, obj_hom, map_right, comp₁_right, map_left, comp₁_left, 
+    map_f, comp₁_f, comp_whiskerRight, whisker_assoc, assoc, Iso.inv_hom_id_assoc, 
+    comp_whiskerLeft, whiskerLeft_comp, whiskerRight_comp, pentagon_hom_inv_inv_inv_inv_assoc, 
+    pentagon_assoc, pentagon_inv_hom_hom_hom_inv_assoc, heq_eq_eq, Iso.cancel_iso_hom_left]
+  rw [←assoc (X.hom ◁ η.naturality (P.right ≫ Q.right)), ←whiskerLeft_comp, 
+    Oplax.LaxTrans.naturality_comp]
+  simp only [whiskerLeft_comp, assoc, pentagon_inv_assoc]
+  rw [←assoc (X.hom ◁ G.map P.right ◁ η.naturality Q.right), associator_inv_naturality_right, 
+    assoc, ←assoc (P.f ▷ η.app Y.right ▷ H.map Q.right), associator_naturality_left P.f, assoc, 
+    ←assoc ((α_ X.hom (G.map P.right ≫ η.app Y.right) (H.map Q.right)).inv), 
+    ←assoc ((α_ X.hom (G.map P.right ≫ η.app Y.right) (H.map Q.right)).inv ≫ 
+    (α_ X.hom (G.map P.right) (η.app Y.right)).inv ▷ H.map Q.right), 
+    assoc ((α_ X.hom (G.map P.right ≫ η.app Y.right) (H.map Q.right)).inv), 
+    pentagon_inv_inv_hom_hom_inv, assoc, 
+    ←assoc ((α_ (X.hom ≫ G.map P.right) (G.map Q.right) (η.app Z.right)).inv), 
+    ←associator_inv_naturality_left, assoc, 
+    ←assoc ((X.hom ≫ G.map P.right) ◁ η.naturality Q.right), whisker_exchange]
+  simp
+
+
+@[simps]
+def core : StrictPseudofunctorCore (Comma F G) (Comma F H) where
+  obj := obj η
+  map := map η
+  map₂ := map₂ η
+  map_id := map_id η
+  map_comp := map_comp η
+
+/-- The change-of-right-leg strict pseudofunctor -/
+@[simps!]
+def functor : StrictPseudofunctor (Comma F G) (Comma F H) := StrictPseudofunctor.mk' (core η)
 
 end mapRight
