@@ -51,25 +51,37 @@ Specializes as well to the arrow bicategory: `Comma (𝟙 T) (𝟙 T)`.
 Provides forgetful projection strict pseudofunctors from the oplax comma bicategory:
 `projLeft : Comma F G ⥤ᵖ A` given
 
-*on objects by `(a, b, φ) ↦ a`;
-*on 1-cells by `(p, q, θ) ↦ p`;
-*on 2-cells by `(α, β) ↦ α`.
+* on objects by `(a, b, φ) ↦ a`;
+* on 1-cells by `(p, q, θ) ↦ p`;
+* on 2-cells by `(α, β) ↦ α`.
 
 Similarly `projRight : Comma F G ⥤ᵖ B` given
 
-*on objects by `(a, b, φ) ↦ b`;
-*on 1-cells by `(p, q, θ) ↦ q`;
-*on 2-cells by `(α, β) ↦ β`.
+* on objects by `(a, b, φ) ↦ b`;
+* on 1-cells by `(p, q, θ) ↦ q`;
+* on 2-cells by `(α, β) ↦ β`.
 
 If `F` and `G` are pseudofunctors, then we have an arrow projection pseudofunctor 
 `projArrow : Comma F G ⥤ᵖ Arrow T` given
 
-*on objects by `(a, b, φ) ↦ (Fa, Gb, φ)`;
-*on 1-cells by `(p, q, θ) ↦ (Fp, Gq, θ)`;
-*on 2-cells by `(α, β) ↦ (Fα, Gβ)`.
+* on objects by `(a, b, φ) ↦ (Fa, Gb, φ)`;
+* on 1-cells by `(p, q, θ) ↦ (Fp, Gq, θ)`;
+* on 2-cells by `(α, β) ↦ (Fα, Gβ)`.
 
 This is specialized from lax and oplax arrow projections for if only one of `F` or `G` are 
 pseudofunctors: `laxProjArrow : Comma F G ⥤ᴸ Arrow T`, `oplaxProjArrow : Comma F G ⥤ᵒᵖᴸ Arrow T`.
+
+For any bicategory `X`, with pseudofunctors `L : X ⥤ᵖ A`, `R : X ⥤ᵖ B` 
+(understood as diagrams in `A`, `B`), and cone data given from a natural transformation 
+`η : FL ⟶ GR`, a lifting pseudofunctor `lift : X ⥤ᵖ Comma F.toLax G.toOplax` 
+(for `F`, `G` also pseudofunctors) given
+
+* on objects by `x ↦ (Lx, Rx, ηx)`;
+* on 1-cells by `f ↦ (Lf, Rf, ηf)`;
+* on 2-cells by `θ ↦ (Lθ, Rθ)`.
+
+This is a consequence of the universal property of Comma as a comma object in the tricategory of 
+bicategories.
 
 -/
 
@@ -627,7 +639,7 @@ end mapLeftMapRight -/
 /-- Constant pseudofunctor at `x`. 
 Refactor this with a separate `const` functor like on 1-categories. -/
 @[simps]
-def fromPUnit (x : T) : Pseudofunctor (LocallyDiscrete (Discrete PUnit)) T where
+def fromPUnit (x : T) : (LocallyDiscrete (Discrete PUnit)) ⥤ᵖ T where
   obj := _
   map _ := _
   map₂ _ := _
@@ -644,11 +656,11 @@ def homStrongTrans {x y : T} (f : x ⟶ y) :
 
 /-- The lax slice bicategory. -/
 @[simp]
-abbrev LaxSlice (x : T) := Comma F (fromPUnit x).toOplax
+abbrev LaxSlice (F : A ⥤ᴸ T) (x : T) := Comma F (fromPUnit x).toOplax
 
 /-- The lax coslice bicategory. -/
 @[simp]
-abbrev LaxCoslice (x : T) := Comma (fromPUnit x).toLax G
+abbrev LaxCoslice (G : B ⥤ᵒᵖᴸ T) (x : T) := Comma (fromPUnit x).toLax G
 
 /-- The underlying lax natural transformation of an oplax strong natural transformation 
 (can go to NaturalTransformation/Oplax.lean) -/
@@ -672,72 +684,184 @@ def toLax₂ {F G : A ⥤ᵖ B} (η : Pseudofunctor.StrongTrans F G) :
   naturality_id _ := by simp [←Iso.cancel_iso_hom_left (whiskerLeftIso (η.app _) (G.mapId _)) _ _, 
     ←Iso.cancel_iso_hom_left (η.naturality _) _ _]
   naturality_comp _ _ := by simp 
-    [←Iso.cancel_iso_hom_right _ _ (whiskerLeftIso (η.app _) (G.mapComp _ _)), 
-    ←Iso.cancel_iso_hom_right _ _ (η.naturality _)]
+                              [←Iso.cancel_iso_hom_right _ _ (whiskerLeftIso (η.app _) 
+                              (G.mapComp _ _)), 
+                              ←Iso.cancel_iso_hom_right _ _ (η.naturality _)]
 
 /-- The change-of-slice strict pseudofunctor. -/
 @[simps!]
-abbrev mapRightSlice {x y : T} (f : x ⟶ y) : 
-    StrictPseudofunctor (LaxSlice (F := F) x) (LaxSlice (F := F) y) := 
+abbrev mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) : 
+    StrictPseudofunctor (LaxSlice F x) (LaxSlice F y) := 
   mapRight (toLax (homStrongTrans f).toOplax)
 
 /-- The change-of-coslice strict pseudofunctor. -/
 @[simps!]
-abbrev mapLeftCoslice {x y : T} (f : y ⟶ x) :
-    StrictPseudofunctor (LaxCoslice (G := G) x) (LaxCoslice (G := G) y) := 
+abbrev mapLeftCoslice {x y : T} (G : B ⥤ᵒᵖᴸ T) (f : y ⟶ x) :
+    StrictPseudofunctor (LaxCoslice G x) (LaxCoslice G y) := 
   mapLeft (toLax₂ (homStrongTrans f)).toLax
 
-/-- The arrow bicategory. -/
-@[simp]
-abbrev Arrow (B : Type*) [Bicategory.{w, v} B] := Comma (LaxFunctor.id B) (OplaxFunctor.id B)
-
 @[simps]
-def projLeftCore : StrictPseudofunctorCore (Comma F G) A where
+def projLeftCore (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctorCore (Comma F G) A where
   obj := _
   map := _
   map₂ η := η.left
 
 /-- The left projection strict pseudofunctor. -/
 @[simps!]
-def projLeft : StrictPseudofunctor (Comma F G) A := StrictPseudofunctor.mk' projLeftCore
+def projLeft (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctor (Comma F G) A := 
+  StrictPseudofunctor.mk' (projLeftCore F G)
 
 @[simps]
-def projRightCore : StrictPseudofunctorCore (Comma F G) B where
+def projRightCore (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctorCore (Comma F G) B where
   obj := _
   map := _
   map₂ η := η.right
 
 /-- The right projection strict pseudofunctor. -/
 @[simps!]
-def projRight : StrictPseudofunctor (Comma F G) B := StrictPseudofunctor.mk' projRightCore
+def projRight (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctor (Comma F G) B := 
+  StrictPseudofunctor.mk' (projRightCore F G)
+
+/-- The arrow bicategory. -/
+@[simp]
+abbrev Arrow (B : Type*) [Bicategory.{w, v} B] := Comma (LaxFunctor.id B) (OplaxFunctor.id B)
 
 /-- The arrow projection lax functor, for `G` a pseudofunctor. 
 Note that we need at least `G` to be a pseudofunctor for this to make sense.
-e.g. for `mapId`, we need the right 2-cell component to be `𝟙 (G.obj X.right) ⟶ G.map (𝟙 X.right)`, which is the opposite mapping from `G` if it were merely oplax. -/
+e.g. for `mapId`, we need the right 2-cell component to be `𝟙 (G.obj X.right) ⟶ G.map (𝟙 X.right)`, 
+which is the opposite mapping from `G` if it were merely oplax. -/
 @[simps]
-def laxProjArrow {G : B ⥤ᵖ T} : Comma F G.toOplax ⥤ᴸ Arrow T where
+def laxProjArrow (F : A ⥤ᴸ T) (G : B ⥤ᵖ T) : Comma F G.toOplax ⥤ᴸ Arrow T where
   obj X := {
-    left := F.obj X.left
-    right := G.obj X.right
-    hom := X.hom }
+    left := _
+    right := _
+    hom := _ }
   map P := {
-    left := F.map P.left
-    right := G.map P.right
+    left := _
+    right := _
     f := P.f }
   map₂ η := {
     left := F.map₂ η.left
     right := G.map₂ η.right
     icc := by simp [η.icc] }
-  mapId X := {
-    left := F.mapId _
+  mapId _ := {
+    left := _
     right := (G.mapId _).inv }
-  mapComp P Q := {
-    left := F.mapComp _ _
+  mapComp _ _ := {
+    left := _
     right := (G.mapComp _ _).inv }
-  map₂_leftUnitor P := by simp
+  map₂_leftUnitor P := by simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left,
+                            id₁_left, comp₁_right, id₁_right, comp₁_f, 
+                            Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp,
+                            id₁_f, Pseudofunctor.toOplax_mapId, leftUnitor_inv, leftUnitorInv_left, 
+                            LaxFunctor.map₂_leftUnitor, leftUnitorInv_right]
                           ext
-                          all_goals simp
-                          have := G.map₂_left_unitor P.right
-                          
+                          all_goals simp only [comp₂_left, comp₁_left, id₁_left, 
+                            leftUnitorInv_left, whiskerRight_left, comp₂_right, comp₁_right,
+                            id₁_right, leftUnitorInv_right, whiskerRight_right]
+                          apply (cancel_mono (G.map₂ (λ_ _).hom)).mp
+                          simp only [Pseudofunctor.map₂_left_unitor, assoc, Iso.inv_hom_id_assoc, 
+                            inv_hom_whiskerRight_assoc, Iso.inv_hom_id]
+                          rw [←G.map₂_left_unitor _, ←G.map₂_comp]
+                          simp
+  map₂_rightUnitor P := by simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left, 
+                              id₁_left, comp₁_right, id₁_right, comp₁_f, 
+                              Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp, 
+                              id₁_f, Pseudofunctor.toOplax_mapId, rightUnitor_inv,  
+                              rightUnitorInv_left, LaxFunctor.map₂_rightUnitor, 
+                              rightUnitorInv_right]
+                           ext
+                           all_goals simp only [comp₂_left, comp₁_left, id₁_left, 
+                             rightUnitorInv_left, whiskerLeft_left, comp₂_right, comp₁_right,
+                             id₁_right, rightUnitorInv_right, whiskerLeft_right]
+                           apply (cancel_mono (G.map₂ (ρ_ _).hom)).mp
+                           simp only [Pseudofunctor.map₂_right_unitor, assoc, Iso.inv_hom_id_assoc, 
+                             whiskerLeft_inv_hom_assoc, Iso.inv_hom_id]
+                           rw [←G.map₂_right_unitor _, ←G.map₂_comp]
+                           simp
+
+/-- The arrow projection oplax functor, for `F` a pseudofunctor. -/
+@[simps]
+def oplaxProjArrow (F : A ⥤ᵖ T) (G : B ⥤ᵒᵖᴸ T) : Comma F.toLax G ⥤ᵒᵖᴸ Arrow T where
+  obj _ := {
+    left := _
+    right := _
+    hom := _ }
+  map P := {
+    left := _
+    right := _
+    f := P.f }
+  map₂ η := {
+    left := F.map₂ η.left
+    right := G.map₂ η.right
+    icc := by simp [←η.icc] }
+  mapId _ := {
+    left := (F.mapId _).hom
+    right := _ }
+  mapComp _ _ := {
+    left := (F.mapComp _ _).hom
+    right := _ }
+
+@[simps]
+def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : 
+    OplaxFunctor.PseudoCore (oplaxProjArrow F G.toOplax) where
+  mapIdIso _ := {
+    hom := {
+      left := (F.mapId _).hom
+      right := _ }
+    inv := {
+      left := _ 
+      right := (G.mapId _).inv } }
+  mapCompIso _ _ := {
+    hom := {
+      left := (F.mapComp _ _).hom
+      right := _ }
+    inv := {
+      left := _
+      right := (G.mapComp _ _).inv } }
+
+/-- When `F` and `G` are both pseudofunctors, then the arrow projection is a pseudofunctor. -/
+@[simps!]
+def projArrow (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : Comma F.toLax G.toOplax ⥤ᵖ Arrow T := 
+  Pseudofunctor.mkOfOplax (oplaxProjArrow F G.toOplax) (projArrowCore F G)
+
+/-- A lifting pseudofunctor into the comma bicategory from cone data. -/
+@[simps]
+def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L : X ⥤ᵖ A} {R : X ⥤ᵖ B} (η : Pseudofunctor.StrongTrans (L.comp F) (R.comp G)) : X ⥤ᵖ (Comma F.toLax G.toOplax) where
+  obj x := {
+    left := L.obj x
+    right := R.obj x
+    hom := η.app x
+  }
+  map g := {
+    left := L.map g
+    right := R.map g
+    f := (η.naturality g).inv
+  }
+  map₂ θ := {
+    left := L.map₂ θ
+    right := R.map₂ θ
+    icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
+    Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+    Prefunctor.comp_obj, Prefunctor.comp_map]
+              apply (cancel_epi (η.naturality _).hom).mp
+              simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+    PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id_assoc]
+              have := η.naturality_naturality θ
+              simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+    PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+    PrelaxFunctorStruct.comp_map₂] at this
+              rw [←assoc (η.naturality _).hom, ←this] -- there's probably a better way to do this
+              simp }
+  mapId x := {
+    hom := {
+      left := (L.mapId x).hom
+      right := (R.mapId x).hom
+      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
+    Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+    Prefunctor.comp_obj, Prefunctor.comp_map, inst, instCategoryHom, id_def, id₁_left, id₁_right, id₁_f,
+    Pseudofunctor.toOplax_mapId, Pseudofunctor.toLax_mapId]
+  }
+  }
 
 end Comma
