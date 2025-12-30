@@ -22,7 +22,7 @@ import Mathlib.CategoryTheory.Bicategory.LocallyDiscrete
 Provides change-of-leg strict pseudofunctors. 
 For lax functors `F H : A ⥤ᴸ T` with a lax natural transformation `η : H ⟶ F`, 
 and oplax `G : B ⥤ᵒᵖᴸ T`,  the change-of-left-leg strict pseudofunctor 
-`mapLeft.functor : Comma F G ⥤ᵖ Comma H G` is given
+`mapLeft: Comma F G ⥤ᵖ Comma H G` is given
 
 * on objects by `(a, b, φ) ↦ (a, b, φη(a))`;
 * on 1-cells by `(p, q, θ) ↦ (p, q, θ')`,
@@ -32,7 +32,7 @@ and oplax `G : B ⥤ᵒᵖᴸ T`,  the change-of-left-leg strict pseudofunctor
 
 For a lax functor `F : A ⥤ᴸ T` and oplax `G H : B ⥤ᵒᵖᴸ T` with a lax natural transformation 
 `η : G ⟶ H`, the change-of-right-leg strict pseudofunctor 
-`mapRight.functor : Comma F G ⥤ᵖ Comma F H` is given
+`mapRight : Comma F G ⥤ᵖ Comma F H` is given
 
 * on objects by `(a, b, φ : Fa ⟶ Gb) ↦ (a, b, η(b)φ)`;
 * on 1-cells by `(p, q, θ) ↦ (p, q, θ')`,
