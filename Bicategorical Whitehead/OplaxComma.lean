@@ -73,7 +73,7 @@ pseudofunctors: `laxProjArrow : Comma F G ⥤ᴸ Arrow T`, `oplaxProjArrow : Com
 
 For any bicategory `X`, with pseudofunctors `L : X ⥤ᵖ A`, `R : X ⥤ᵖ B` 
 (understood as diagrams in `A`, `B`), and cone data given from a natural transformation 
-`η : FL ⟶ GR`, a lifting pseudofunctor `lift : X ⥤ᵖ Comma F.toLax G.toOplax` 
+`η : FL ⟶ GR`, we provide a lifting pseudofunctor `lift : X ⥤ᵖ Comma F.toLax G.toOplax` 
 (for `F`, `G` also pseudofunctors) given
 
 * on objects by `x ↦ (Lx, Rx, ηx)`;
@@ -827,41 +827,129 @@ def projArrow (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : Comma F.toLax G.toOplax ⥤ᵖ
 
 /-- A lifting pseudofunctor into the comma bicategory from cone data. -/
 @[simps]
-def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L : X ⥤ᵖ A} {R : X ⥤ᵖ B} (η : Pseudofunctor.StrongTrans (L.comp F) (R.comp G)) : X ⥤ᵖ (Comma F.toLax G.toOplax) where
-  obj x := {
-    left := L.obj x
-    right := R.obj x
-    hom := η.app x
+def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L : X ⥤ᵖ A} {R : X ⥤ᵖ B}
+    (η : Pseudofunctor.StrongTrans (L.comp F) (R.comp G)) : X ⥤ᵖ (Comma F.toLax G.toOplax) where
+  obj _ := {
+    left := _
+    right := _
+    hom := _
   }
-  map g := {
-    left := L.map g
-    right := R.map g
-    f := (η.naturality g).inv
+  map _ := {
+    left := _
+    right := _
+    f := (η.naturality _).inv
   }
   map₂ θ := {
     left := L.map₂ θ
     right := R.map₂ θ
     icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
-    Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
-    Prefunctor.comp_obj, Prefunctor.comp_map]
+                Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, 
+                PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map]
               apply (cancel_epi (η.naturality _).hom).mp
-              simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
-    PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id_assoc]
+              simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id_assoc]
               have := η.naturality_naturality θ
-              simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
-    PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
-    PrelaxFunctorStruct.comp_map₂] at this
-              rw [←assoc (η.naturality _).hom, ←this] -- there's probably a better way to do this
-              simp }
+              simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                Prefunctor.comp_obj, Prefunctor.comp_map, PrelaxFunctorStruct.comp_map₂] at this
+              simp [←assoc (η.naturality _).hom, ←this] }
   mapId x := {
     hom := {
       left := (L.mapId x).hom
       right := (R.mapId x).hom
-      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
-    Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
-    Prefunctor.comp_obj, Prefunctor.comp_map, inst, instCategoryHom, id_def, id₁_left, id₁_right, id₁_f,
-    Pseudofunctor.toOplax_mapId, Pseudofunctor.toLax_mapId]
-  }
-  }
+      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
+                  Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.comp_toPrelaxFunctor,
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, inst, instCategoryHom, id_def, 
+                  id₁_left, id₁_right, id₁_f, Pseudofunctor.toOplax_mapId, 
+                  Pseudofunctor.toLax_mapId]
+                apply (cancel_epi (η.naturality _).hom).mp
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id_assoc]
+                have := η.naturality_id x
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapId, 
+                  Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
+                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
+                rw [←assoc (η.naturality _).hom,  ←assoc ((η.naturality _).hom ≫ _), 
+                  assoc (η.naturality _).hom, this]
+                simp }
+    inv := {
+      left := (L.mapId x).inv
+      right := (R.mapId x).inv
+      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
+                  Pseudofunctor.toOplax_toPrelaxFunctor, inst, instCategoryHom, id_def, id₁_right, 
+                  Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                  PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, 
+                  id₁_left, id₁_f, Pseudofunctor.toOplax_mapId, Pseudofunctor.toLax_mapId, assoc]
+                apply (cancel_epi (_ ◁ G.map₂ (R.mapId _).hom)).mp
+                nth_rw 2 [←assoc (_ ◁ G.map₂ (R.mapId _).hom)] 
+                simp only [PrelaxFunctor.map₂_hom_inv, whiskerLeft_id, id_comp, ←whiskerLeft_comp]
+                apply (cancel_epi (η.naturality _).hom).mp
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id]
+                have := η.naturality_id x
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapId, 
+                  Iso.trans_hom,  Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
+                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
+                rw [←assoc (η.naturality _).hom, 
+                  ←assoc ((η.naturality _).hom ≫ _ ◁ G.map₂ (R.mapId _).hom), 
+                  assoc (η.naturality _).hom, this]
+                simp [←comp_whiskerRight] } }
+  mapComp f g := {
+    hom := {
+      left := (L.mapComp f g).hom
+      right := (R.mapComp f g).hom
+      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
+                  Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                  Prefunctor.comp_obj, Prefunctor.comp_map, inst, instCategoryHom, comp_def,
+                  comp₁_left, comp₁_right, comp₁_f, Pseudofunctor.toOplax_mapComp,
+                  Pseudofunctor.toLax_mapComp]
+                have := η.naturality_comp f g
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapComp, 
+                  Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
+                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
+                apply (cancel_epi (η.naturality _).hom).mp
+                nth_rw 2 [←assoc ((η.naturality _).hom)]
+                rw [←assoc (((η.naturality _).hom ≫ _ ◁ G.map₂ (R.mapComp _ _).hom)), 
+                  assoc (η.naturality _).hom, this]
+                simp }
+    inv := {
+      left := (L.mapComp f g).inv
+      right := (R.mapComp f g).inv
+      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
+                  Pseudofunctor.toOplax_toPrelaxFunctor, inst, instCategoryHom, 
+                  Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, 
+                  PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, 
+                  comp_def, comp₁_right, comp₁_left, comp₁_f, Pseudofunctor.toOplax_mapComp,
+                  Pseudofunctor.toLax_mapComp, assoc]
+                apply (cancel_epi (_◁ G.map₂ (R.mapComp _ _).hom)).mp
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, ←assoc (η.app _ ◁ G.map₂ (R.mapComp _ _).hom), 
+                  ←whiskerLeft_comp, PrelaxFunctor.map₂_hom_inv, whiskerLeft_id, id_comp]
+                have := η.naturality_comp f g
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapComp, 
+                  Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
+                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
+                apply (cancel_epi (η.naturality _).hom).mp
+                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
+                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
+                  Prefunctor.comp_obj, Prefunctor.comp_map, whiskerLeft_comp, assoc, Iso.hom_inv_id]
+                rw [←assoc (η.naturality _).hom, 
+                  ←assoc ((η.naturality _).hom ≫ _◁ G.map₂ (R.mapComp _ _).hom), 
+                  assoc (η.naturality _).hom, this]
+                simp [←comp_whiskerRight] } }
 
 end Comma
