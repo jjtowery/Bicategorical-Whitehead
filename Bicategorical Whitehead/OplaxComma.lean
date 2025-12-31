@@ -832,13 +832,11 @@ def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L 
   obj _ := {
     left := _
     right := _
-    hom := _
-  }
+    hom := _ }
   map _ := {
     left := _
     right := _
-    f := (η.naturality _).inv
-  }
+    f := (η.naturality _).inv }
   map₂ θ := {
     left := L.map₂ θ
     right := R.map₂ θ
