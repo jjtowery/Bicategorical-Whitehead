@@ -5,10 +5,8 @@ Authors: Judah Towery
 -/
 
 import Mathlib.CategoryTheory.Bicategory.NaturalTransformation.Lax
-import Mathlib.CategoryTheory.Bicategory.NaturalTransformation.Pseudo
 import Mathlib.CategoryTheory.Bicategory.Functor.StrictPseudofunctor
-import Mathlib.CategoryTheory.Bicategory.Adjunction.Basic
-import Mathlib.CategoryTheory.Bicategory.LocallyDiscrete
+import «Bicategorical Whitehead».Const
 
 /-!
 
@@ -636,31 +634,13 @@ def interchange : mapLeftMapRight η θ ≌ mapRightMapLeft θ η :=
 
 end mapLeftMapRight -/
 
-/-- Constant pseudofunctor at `x`. 
-Refactor this with a separate `const` functor like on 1-categories. -/
-@[simps]
-def fromPUnit (x : T) : (LocallyDiscrete (Discrete PUnit)) ⥤ᵖ T where
-  obj := _
-  map _ := _
-  map₂ _ := _
-  mapId _ := Iso.refl _
-  mapComp _ _ := (ρ_ _).symm
-
-/-- A 1-cell `f : x ⟶ y` in `T` induces a strong natural transformation
-`fromPUnit x ⟶ fromPUnit y`. -/
-@[simps]
-def homStrongTrans {x y : T} (f : x ⟶ y) : 
-    Pseudofunctor.StrongTrans (fromPUnit x) (fromPUnit y) where
-  app := _
-  naturality _ := (λ_ _) ≪≫ (ρ_ f).symm
-
 /-- The lax slice bicategory. -/
 @[simp]
-abbrev LaxSlice (F : A ⥤ᴸ T) (x : T) := Comma F (fromPUnit x).toOplax
+abbrev LaxSlice (F : A ⥤ᴸ T) (x : T) := Comma F (const.fromPUnit x).toOplax
 
 /-- The lax coslice bicategory. -/
 @[simp]
-abbrev LaxCoslice (G : B ⥤ᵒᵖᴸ T) (x : T) := Comma (fromPUnit x).toLax G
+abbrev LaxCoslice (G : B ⥤ᵒᵖᴸ T) (x : T) := Comma (const.fromPUnit x).toLax G
 
 /-- The underlying lax natural transformation of an oplax strong natural transformation 
 (can go to NaturalTransformation/Oplax.lean) -/
@@ -692,13 +672,13 @@ def toLax₂ {F G : A ⥤ᵖ B} (η : Pseudofunctor.StrongTrans F G) :
 @[simps!]
 abbrev mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) : 
     StrictPseudofunctor (LaxSlice F x) (LaxSlice F y) := 
-  mapRight (toLax (homStrongTrans f).toOplax)
+  mapRight (toLax (const.homStrongTrans f).toOplax)
 
 /-- The change-of-coslice strict pseudofunctor. -/
 @[simps!]
 abbrev mapLeftCoslice {x y : T} (G : B ⥤ᵒᵖᴸ T) (f : y ⟶ x) :
     StrictPseudofunctor (LaxCoslice G x) (LaxCoslice G y) := 
-  mapLeft (toLax₂ (homStrongTrans f)).toLax
+  mapLeft (toLax₂ (const.homStrongTrans f)).toLax
 
 @[simps]
 def projLeftCore (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctorCore (Comma F G) A where
