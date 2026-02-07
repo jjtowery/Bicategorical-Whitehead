@@ -587,8 +587,8 @@ def interchangeHom : mapLeftMapRight η θ ⟶ mapRightMapLeft θ η where
 @[simps]
 def interchangeInv : mapRightMapLeft θ η ⟶ mapLeftMapRight η θ where
   app X := {
-    left := 𝟙 X.left
-    right := 𝟙 X.right
+    left := 𝟙 _
+    right := 𝟙 _
     f := _ ◁ (K.mapId _) ≫ (ρ_ _).hom ≫ (α_ _ _ _).inv ≫ (λ_ _).inv ≫ (H.mapId _) ▷ _ }
   naturality P := {
     hom := {
