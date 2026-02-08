@@ -8,7 +8,7 @@ import «Bicategorical Whitehead».Const
 import Mathlib.CategoryTheory.Bicategory.NaturalTransformation.Lax
 import Mathlib.CategoryTheory.Limits.Shapes.IsTerminal
 
-/-
+/-!
 # Lax terminal objects and inc-lax (initial-component-lax) transformations.
 
 An object `t ∈ C` is lax terminal if there is a lax transformation `k : Id_C ⟶ Δₜ`.
@@ -25,20 +25,19 @@ k_X |  ⇒   | k_Y
        1ₜ
 ```
 
-For lax functors `F, G : B ⟶ C`, a lax tranformation `k : F ⟶ G` is inc-lax if each component
+For lax functors `F, G : B ⥤ᴸ C`, a lax tranformation `k : F ⟶ G` is inc-lax if each component
 `k_X : FX ⟶ GX` is initial in the category `C(FX, GX)`.
 
 If `t ∈ C` is lax terminal with lax transformation `k : Id_C ⟶ Δₜ`, `t` is an inc-lax
 terminal object if `k` is inc-lax, and the component `kₜ` is the identity 1-cell `1ₜ`.
 
-If `B, C` have inc-lax terminal objects `(t, k), (t', k')` respectively, a lax functor `F : B → C`
-preserves initial components if the composite
-    
+If `B, C` have inc-lax terminal objects `(t, k), (t', k')` respectively, a lax functor 
+`F : B ⥤ᴸ C` preserves initial components if the composite 
 ```  
      Fk_X      k'_(Ft)
 FX -------> Ft -------> t'
 ```
-is initial in `C(FX, t)`.
+is initial in `C(FX, t')`.
 
 -/
 
@@ -50,20 +49,15 @@ universe w₁ w₂ v₁ v₂
 
 variable {B C : Type*} [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C]
 
-@[simp]
-abbrev LaxTerminalData (t : C) : Type _ := Lax.LaxTrans (LaxFunctor.id C) (const C t)
-
 /-- Lax terminal objects. -/
-class IsLaxTerminal (t : C) : Prop where
-  exists_laxTerminalData : Nonempty (LaxTerminalData t)
+structure LaxTerminal (t : C) where
+  cone : Lax.LaxTrans (LaxFunctor.id C) (const C t)
 
-namespace LaxTerminal
-
-noncomputable def choose (t : C) [h : IsLaxTerminal t] : LaxTerminalData t := 
-  Classical.choice h.exists_laxTerminalData
-
-end LaxTerminal
-
-/-- Inc-lax transformation. -/
-class IsIncLax {F G : B ⥤ᴸ C} (k : Lax.LaxTrans F G) : Type _ where
+/-- Inc-lax transformations. -/
+structure IncLax {F G : B ⥤ᴸ C} (k : Lax.LaxTrans F G) where
   app_isInitial (X : B) : Limits.IsInitial (k.app X)
+
+/-- Inc-lax terminal objects. -/
+structure IncLaxTerminal (t : C) extends LaxTerminal t where
+  inc : IncLax cone
+  app_self_eq_id : cone.app t = 𝟙 t
