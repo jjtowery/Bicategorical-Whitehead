@@ -61,3 +61,28 @@ structure IncLax {F G : B ⥤ᴸ C} (k : Lax.LaxTrans F G) where
 structure IncLaxTerminal (t : C) extends LaxTerminal t where
   inc : IncLax cone
   app_self_eq_id : cone.app t = 𝟙 t
+
+/-- Lax functor that preserves initial components. -/
+structure PreservesInitialComponents {t : B} {t' : C} (F : B ⥤ᴸ C)
+    (h : IncLaxTerminal t) (h' : IncLaxTerminal t') where
+  comp_isInitial (X : B) : Limits.IsInitial (F.map (h.cone.app X) ≫ h'.cone.app (F.obj t))
+
+namespace PreservesInitialComponents
+
+/-- If `F : B ⥤ᴸ C` preserves initial components, and `f : X ⟶ t` is an initial 1-cell in 
+`B(X, t)`, then
+``` 
+    Ff        k'_{Ft}
+FX -----> Ft --------> t
+```
+is initial in `C(FX, t)`. -/
+def comp_isInitial_of_isInitial {t : B} {t' : C} {F : B ⥤ᴸ C} {h : IncLaxTerminal t}
+    {h' : IncLaxTerminal t'} (hF : PreservesInitialComponents F h h') {X : B} {f : X ⟶ t}
+    (hf : Limits.IsInitial f) :
+    Limits.IsInitial (F.map f ≫ h'.cone.app (F.obj t)) := 
+  Limits.IsInitial.ofIso (hF.comp_isInitial X) 
+  (whiskerRightIso (PrelaxFunctor.map₂Iso F.toPrelaxFunctor 
+  (Limits.IsInitial.uniqueUpToIso hf (h.inc.app_isInitial X)))
+  (h'.cone.app (F.obj t))).symm
+
+end PreservesInitialComponents
