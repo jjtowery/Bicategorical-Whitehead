@@ -143,6 +143,8 @@ structure Hom₂ {X Y : Comma F G} (P Q : X ⟶ Y) where
   right : P.right ⟶ Q.right
   icc : P.f ≫ (F.map₂ left ▷ Y.hom) = (X.hom ◁ G.map₂ right) ≫ Q.f := by cat_disch
 
+attribute [simp] Hom₂.icc
+
 /-- For a 1-cell `(p, q, θ)`, the identity 2-cell is `(𝟙p, 𝟙q)`. -/
 @[simps]
 def id₂ {X Y : Comma F G} (P : X ⟶ Y) : Hom₂ P P where
