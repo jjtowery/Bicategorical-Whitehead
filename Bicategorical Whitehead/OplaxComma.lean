@@ -14,70 +14,39 @@ import «Bicategorical Whitehead».Const
 
 * objects are triples `(a : A, b : B, φ : Fa ⟶ Gb)`;
 * 1-cells are triples `(p : a₀ ⟶ a₁, q : b₀ ⟶ b₁, θ : Gq φ₀ ⟶ φ₁ Fp)`;
-* 2-cells are pairs `(α : p ⟶ p', β : q ⟶ q')` that satisfy the generalized ice cream 
-* cone condition.
+* 2-cells are pairs `(α : p ⟶ p', β : q ⟶ q')` that satisfy the generalized ice cream cone
+condition.
 
-Provides change-of-leg strict pseudofunctors. 
+Provides change-of-leg strict pseudofunctors: 
 For lax functors `F H : A ⥤ᴸ T` with a lax natural transformation `η : H ⟶ F`, 
-and oplax `G : B ⥤ᵒᵖᴸ T`,  the change-of-left-leg strict pseudofunctor 
-`mapLeft: Comma F G ⥤ᵖ Comma H G` is given
-
-* on objects by `(a, b, φ) ↦ (a, b, φη(a))`;
-* on 1-cells by `(p, q, θ) ↦ (p, q, θ')`,
-* where `θ'` is given by the composite
-* `Gq(φ₀η(a₀)) ⟶ (Gq φ₀)η(a₀) ⟶ (φ₁Fp)η(a₀) ⟶ φ₁(Fp η(a₀)) ⟶ φ₁(η(a₁)Hp) ⟶ (φ₁η(a₁))Hp`;
-* on 2-cells by `(α, β) ↦ (α, β)`.
+and oplax `G : B ⥤ᵒᵖᴸ T`,  the change-of-left-leg strict pseudofunctor
+`mapLeft: Comma F G ⥤ᵖ Comma H G`.
 
 For a lax functor `F : A ⥤ᴸ T` and oplax `G H : B ⥤ᵒᵖᴸ T` with a lax natural transformation 
-`η : G ⟶ H`, the change-of-right-leg strict pseudofunctor 
-`mapRight : Comma F G ⥤ᵖ Comma F H` is given
+`η : G ⟶ H`, the change-of-right-leg strict pseudofunctor `mapRight : Comma F G ⥤ᵖ Comma F H`.
 
-* on objects by `(a, b, φ : Fa ⟶ Gb) ↦ (a, b, η(b)φ)`;
-* on 1-cells by `(p, q, θ) ↦ (p, q, θ')`,
-* where `θ'` is given by the composite
-* `Hq(η(b₀)φ₀) ⟶ (Hq η(b₀))φ₀ ⟶ (η(b₁)Gp)φ₀ ⟶ η(b₁)(Gp φ₀) ⟶ η(b₁)(φ₁Fp) ⟶ (η(b₁)φ₁)Fp`;
-* on 2-cells by `(α, β) ↦ (α, β)`.
-
-Specializes to the lax slice bicategory. For some `x : T`, with constant pseudofunctor `Δₓ`, 
-the lax slice bicategory is `Comma F Δₓ`. Similarly the lax coslice bicategory is `Comma Δₓ G`.
+Specializes to the lax slice bicategory: 
+For some `x : T`, with constant pseudofunctor `Δₓ`, the lax slice bicategory is 
+`LaxSlice: Comma F Δₓ`. 
+Similarly the lax coslice bicategory is `LaxCoslice : Comma Δₓ G`.
 Note that this lax slice not definitionally equal to the lax slice construction in Johnson-Yau
 (e.g. the objects in Comma F Δₓ are triples, not pairs), but `Comma F Δₓ` and the Johnson-Yau
 lax slice are still biequivalent (this is not proven here).
 
-Specializes as well to the arrow bicategory: `Comma (𝟙 T) (𝟙 T)`.
+Specializes as well to the arrow bicategory: `Arrow : Comma (𝟙 T) (𝟙 T)`.
 
 Provides forgetful projection strict pseudofunctors from the oplax comma bicategory:
-`projLeft : Comma F G ⥤ᵖ A` given
+`projLeft : Comma F G ⥤ᵖ A`, and `projRight : Comma F G ⥤ᵖ B`.
 
-* on objects by `(a, b, φ) ↦ a`;
-* on 1-cells by `(p, q, θ) ↦ p`;
-* on 2-cells by `(α, β) ↦ α`.
-
-Similarly `projRight : Comma F G ⥤ᵖ B` given
-
-* on objects by `(a, b, φ) ↦ b`;
-* on 1-cells by `(p, q, θ) ↦ q`;
-* on 2-cells by `(α, β) ↦ β`.
-
-If `F` and `G` are pseudofunctors, then we have an arrow projection pseudofunctor 
-`projArrow : Comma F G ⥤ᵖ Arrow T` given
-
-* on objects by `(a, b, φ) ↦ (Fa, Gb, φ)`;
-* on 1-cells by `(p, q, θ) ↦ (Fp, Gq, θ)`;
-* on 2-cells by `(α, β) ↦ (Fα, Gβ)`.
-
+If `F` and `G` are pseudofunctors, provides the arrow projection pseudofunctor 
+`projArrow : Comma F G ⥤ᵖ Arrow T`. 
 This is specialized from lax and oplax arrow projections for if only one of `F` or `G` are 
-pseudofunctors: `laxProjArrow : Comma F G ⥤ᴸ Arrow T`, `oplaxProjArrow : Comma F G ⥤ᵒᵖᴸ Arrow T`.
+pseudofunctors: 
+`laxProjArrow : Comma F G ⥤ᴸ Arrow T`, `oplaxProjArrow : Comma F G ⥤ᵒᵖᴸ Arrow T`.
 
-For any bicategory `X`, with pseudofunctors `L : X ⥤ᵖ A`, `R : X ⥤ᵖ B` 
-(understood as diagrams in `A`, `B`), and cone data given from a natural transformation 
-`η : FL ⟶ GR`, we provide a lifting pseudofunctor `lift : X ⥤ᵖ Comma F.toLax G.toOplax` 
-(for `F`, `G` also pseudofunctors) given
-
-* on objects by `x ↦ (Lx, Rx, ηx)`;
-* on 1-cells by `f ↦ (Lf, Rf, ηf)`;
-* on 2-cells by `θ ↦ (Lθ, Rθ)`.
-
+For any bicategory `X`, with pseudofunctors `L : X ⥤ᵖ A`, `R : X ⥤ᵖ B`, and cone data given from 
+a natural transformation `η : FL ⟶ GR`, we provide a lifting pseudofunctor 
+`lift : X ⥤ᵖ Comma F.toLax G.toOplax`, (for `F`, `G` also pseudofunctors).
 This is a consequence of the universal property of Comma as a comma object in the tricategory of 
 bicategories.
 
@@ -389,21 +358,25 @@ namespace mapLeft
 
 variable {H : A ⥤ᴸ T} (η : Lax.LaxTrans H F)
 
-/-- Action of the change-of-left-leg functor on objects. -/
+/-- Action of the change-of-left-leg functor on objects. 
+`(a, b, φ) ↦ (a, b, φη(a))`. -/
 @[simps]
 def obj (X : Comma F G) : Comma H G where 
   left := X.left 
   right := X.right 
   hom := η.app _ ≫ X.hom
 
-/-- Action of the change-of-left-leg functor on 1-cells. -/
+/-- Action of the change-of-left-leg functor on 1-cells. 
+`(p, q, θ) ↦ (p, q, θ')`, where `θ'` is given by the composite
+*Gq(φ₀η(a₀)) ⟶ (Gq φ₀)η(a₀) ⟶ (φ₁Fp)η(a₀) ⟶ φ₁(Fp η(a₀)) ⟶ φ₁(η(a₁)Hp) ⟶ (φ₁η(a₁))Hp`. -/
 @[simps]
 def map {X Y : Comma F G} (P : X ⟶ Y) : obj η X ⟶ obj η Y where 
   left := P.left 
   right := P.right 
   f := (α_ _ _ _).hom ≫ _ ◁ P.f ≫ (α_ _ _ _).inv ≫ η.naturality _ ▷ _ ≫ (α_ _ _ _).hom
 
-/-- Action of the change-of-left-leg functor on 2-cells. -/
+/-- Action of the change-of-left-leg functor on 2-cells. 
+`(α, β) ↦ (α, β)`. -/
 @[simps]
 def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : map η P ⟶ map η Q where 
   left := θ.left 
@@ -475,21 +448,25 @@ namespace mapRight
 
 variable {H : B ⥤ᵒᵖᴸ T} (η : Oplax.LaxTrans G H)
 
-/-- Action of the change-of-right-leg functor on objects. -/
+/-- Action of the change-of-right-leg functor on objects. 
+`(a, b, φ : Fa ⟶ Gb) ↦ (a, b, η(b)φ)`. -/
 @[simps]
 def obj (X : Comma F G) : Comma F H where 
   left := X.left 
   right := X.right 
   hom := X.hom ≫ η.app _
 
-/-- Action of the change-of-right-leg functor on 1-cells. -/
+/-- Action of the change-of-right-leg functor on 1-cells. 
+`(p, q, θ) ↦ (p, q, θ')`, where `θ'` is given by the composite
+`Hq(η(b₀)φ₀) ⟶ (Hq η(b₀))φ₀ ⟶ (η(b₁)Gp)φ₀ ⟶ η(b₁)(Gp φ₀) ⟶ η(b₁)(φ₁Fp) ⟶ (η(b₁)φ₁)Fp`. -/
 @[simps]
 def map {X Y : Comma F G} (P : X ⟶ Y) : obj η X ⟶ obj η Y where 
   left := P.left 
   right := P.right 
   f := (α_ _ _ _).hom ≫ _ ◁ η.naturality _ ≫ (α_ _ _ _).inv ≫ P.f ▷ _ ≫ (α_ _ _ _).hom
 
-/-- Action of the change-of-right-leg functor on 2-cells. -/
+/-- Action of the change-of-right-leg functor on 2-cells. 
+`(α, β) ↦ (α, β)`. -/
 @[simps]
 def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : map η P ⟶ map η Q where 
   left := θ.left 
@@ -688,7 +665,11 @@ def projLeftCore (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctorCo
   map := _
   map₂ η := η.left
 
-/-- The left projection strict pseudofunctor. -/
+/-- The left projection strict pseudofunctor. Given:
+on objects by `(a, b, φ) ↦ a`;
+on 1-cells by `(p, q, θ) ↦ p`;
+on 2-cells by `(α, β) ↦ α`.
+-/
 @[simps!]
 def projLeft (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctor (Comma F G) A := 
   StrictPseudofunctor.mk' (projLeftCore F G)
@@ -699,7 +680,10 @@ def projRightCore (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctorC
   map := _
   map₂ η := η.right
 
-/-- The right projection strict pseudofunctor. -/
+/-- The right projection strict pseudofunctor. Given:
+on objects by `(a, b, φ) ↦ b`;
+on 1-cells by `(p, q, θ) ↦ q`;
+on 2-cells by `(α, β) ↦ β`. -/
 @[simps!]
 def projRight (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctor (Comma F G) B := 
   StrictPseudofunctor.mk' (projRightCore F G)
@@ -802,12 +786,18 @@ def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) :
       left := _
       right := (G.mapComp _ _).inv } }
 
-/-- When `F` and `G` are both pseudofunctors, then the arrow projection is a pseudofunctor. -/
+/-- When `F` and `G` are both pseudofunctors, then the arrow projection is a pseudofunctor. Given
+on objects by `(a, b, φ) ↦ (Fa, Gb, φ)`;
+on 1-cells by `(p, q, θ) ↦ (Fp, Gq, θ)`;
+on 2-cells by `(α, β) ↦ (Fα, Gβ)`. -/
 @[simps!]
 def projArrow (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : Comma F.toLax G.toOplax ⥤ᵖ Arrow T := 
   Pseudofunctor.mkOfOplax (oplaxProjArrow F G.toOplax) (projArrowCore F G)
 
-/-- A lifting pseudofunctor into the comma bicategory from cone data. -/
+/-- A lifting pseudofunctor into the comma bicategory from cone data. Given
+on objects by `x ↦ (Lx, Rx, ηx)`;
+on 1-cells by `f ↦ (Lf, Rf, ηf)`;
+on 2-cells by `θ ↦ (Lθ, Rθ)`. -/
 @[simps]
 def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L : X ⥤ᵖ A} {R : X ⥤ᵖ B}
     (η : Pseudofunctor.StrongTrans (L.comp F) (R.comp G)) : X ⥤ᵖ (Comma F.toLax G.toOplax) where
