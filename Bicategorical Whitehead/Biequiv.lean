@@ -29,8 +29,6 @@ open Category Bicategory
 
 universe w₁ w₂ v₁ v₂
 
-variable {B C : Type*} [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C]
-
 open scoped Pseudofunctor.StrongTrans
 
 /-- A pre-biequivalence. 
@@ -48,8 +46,10 @@ Invertible modifications `θ : 𝟙 (𝟙 B) ≅ ηη'` and `θ' : ηη' ≅ �
 This is taken as the definition of biequivalence in Johnson-Yau, but in 
 analogy with the 1-category API, we want to consider biadjoint biequivalence as the definition 
 of biequivalence, which pre-biequivalences can strictify to. -/
-structure PreBiequivalence where
+structure PreBiequivalence (B C : Type*) [Bicategory.{w₁, v₁ B}] [Bicategory.{w₂, v₂} C] where
   hom : B ⥤ᵖ C
   inv : C ⥤ᵖ B
   unit : Pseudofunctor.id B ≌ hom.comp inv
   counit : inv.comp hom ≌ Pseudofunctor.id C
+
+variable {B C : Type*} [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C]
