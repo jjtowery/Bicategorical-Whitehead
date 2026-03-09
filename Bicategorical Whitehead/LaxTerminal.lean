@@ -28,7 +28,7 @@ variable {B C D : Type*} [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C]
 
 /-- Lax terminal objects. 
 An object `t : C` is lax terminal if there is a lax transformation `k : 𝟙 C ⟶ Δₜ`.
-The 1-cells of such a transformation are of the form `k_X : X ⟶ t` for `X ∈ C`,
+The 1-cells of such a transformation are of the form `k_X : X ⟶ t` for all `X : C`,
 and 2-cells
 ```    
        u
