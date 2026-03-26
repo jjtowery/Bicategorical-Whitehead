@@ -228,7 +228,35 @@ def whiskerRightComp' {F G K : B ⥤ᵖ C} (η : F ⟶ G) (θ : G ⟶ K) (H : C 
 
 @[simp]
 def whiskerRightIso' {F G : B ⥤ᵖ C} {η θ : F ⟶ G} (α : η ≅ θ) (H : C ⥤ᵖ D) :
-    postWhisker η H ≅ postWhisker θ H := sorry
+    postWhisker η H ≅ postWhisker θ H where
+ hom := {
+    as := {
+      app _ := H.map₂ (α.hom.as.app _)
+      naturality f := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
+                           PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                           PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                           Prefunctor.comp_map, postWhisker, assoc]
+                         have := congrArg (fun t => H.map₂ t ≫ 
+                           (H.mapComp _ _).hom) (α.hom.as.naturality f)
+                         simp only [PrelaxFunctor.map₂_comp, Pseudofunctor.map₂_whisker_right,
+                           assoc, Iso.inv_hom_id, comp_id] at this
+                         simp [←this] } }
+ inv := {
+   as := {
+     app _ := H.map₂ (α.inv.as.app _)
+     naturality f := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
+                          PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                          Prefunctor.comp_map, postWhisker, assoc]
+                        have := congrArg (fun t => H.map₂ t ≫
+                          (H.mapComp _ _).hom) (α.inv.as.naturality f)
+                        simp only [PrelaxFunctor.map₂_comp, Pseudofunctor.map₂_whisker_right,
+                          assoc, Iso.inv_hom_id, comp_id] at this
+                        simp [←this] } }
+ hom_inv_id := by ext
+                  simp [←H.map₂_comp, ←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ _) _]
+ inv_hom_id := by ext
+                  simp [←H.map₂_comp, ←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ -) _]
 
 @[simp]
 def whiskerRight' {F G : B ⥤ᵖ C} (e : F ≌ G) (H : C ⥤ᵖ D) : F.comp H ≌ G.comp H :=
