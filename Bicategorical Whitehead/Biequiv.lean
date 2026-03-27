@@ -58,22 +58,15 @@ variable {B C D E : Type*} [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} 
 
 /-- Symmetry of equivalence. Should go to existing API. -/
 @[simp] 
-abbrev Equivalence.symm {a b : B} (e : a ≌ b) : b ≌ a :=
+def Equivalence.symm {a b : B} (e : a ≌ b) : b ≌ a :=
   Equivalence.mkOfAdjointifyCounit e.counit.symm e.unit.symm
 
 /-- Composition of equivalence. Should go to existing API. -/
-abbrev transUnit {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) :
-    𝟙 a ≅ (e₁.hom ≫ e₂.hom) ≫ (e₂.inv ≫ e₁.inv) :=
-  e₁.unit ≪≫ whiskerRightIso (ρ_ _).symm _ ≪≫ whiskerRightIso (whiskerLeftIso _ e₂.unit) _ ≪≫
-  whiskerRightIso (α_ _ _ _).symm _ ≪≫ α_ _ _ _
-
-abbrev transCounit {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) :
-    (e₂.inv ≫ e₁.inv) ≫ (e₁.hom ≫ e₂.hom) ≅ 𝟙 c :=
-  α_ _ _ _ ≪≫ whiskerLeftIso _ (α_ _ _ _).symm ≪≫ (α_ _ _ _).symm ≪≫
-  whiskerRightIso (whiskerLeftIso _ e₁.counit) _ ≪≫ α_ _ _ _ ≪≫ whiskerLeftIso _ (λ_ _) ≪≫ e₂.counit
-
-abbrev Equivalence.trans {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : a ≌ c := 
-  Equivalence.mkOfAdjointifyCounit (transUnit e₁ e₂) (transCounit e₁ e₂)
+def Equivalence.trans {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : a ≌ c := 
+  Equivalence.mkOfAdjointifyCounit (e₁.unit ≪≫ whiskerRightIso (ρ_ _).symm _ ≪≫ whiskerRightIso
+    (whiskerLeftIso _ e₂.unit) _ ≪≫ whiskerRightIso (α_ _ _ _).symm _ ≪≫ α_ _ _ _)
+    (α_ _ _ _ ≪≫ whiskerLeftIso _ (α_ _ _ _).symm ≪≫ (α_ _ _ _).symm ≪≫ whiskerRightIso
+    (whiskerLeftIso _ e₁.counit) _ ≪≫ α_ _ _ _ ≪≫ whiskerLeftIso _ (λ_ _) ≪≫ e₂.counit)
 
 /-- Helpful tricategorical pseudofunctor operations. Should go to existing API. -/
 @[simp]
@@ -256,7 +249,7 @@ def whiskerRightIso' {F G : B ⥤ᵖ C} {η θ : F ⟶ G} (α : η ≅ θ) (H : 
  hom_inv_id := by ext
                   simp [←H.map₂_comp, ←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ _) _]
  inv_hom_id := by ext
-                  simp [←H.map₂_comp, ←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ -) _]
+                  simp [←H.map₂_comp, ←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ _) _]
 
 @[simp]
 def whiskerRight' {F G : B ⥤ᵖ C} (e : F ≌ G) (H : C ⥤ᵖ D) : F.comp H ≌ G.comp H :=
@@ -265,11 +258,51 @@ def whiskerRight' {F G : B ⥤ᵖ C} (e : F ≌ G) (H : C ⥤ᵖ D) : F.comp H �
   ((whiskerRightIso' e.counit _).trans (whiskerRightId' _ _).symm))
 
 @[simp]
-def preWhisker (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (η : F ⟶ G) :
-    H.comp F ⟶ H.comp G := sorry
+def preWhisker (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (η : F ⟶ G) : H.comp F ⟶ H.comp G where
+  app _ := η.app (H.obj _)
+  naturality _ := η.naturality (H.map _)
+  naturality_id _ := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
+                          PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                          Prefunctor.comp_map, Pseudofunctor.comp_mapId, Iso.trans_hom,
+                          Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, whiskerLeft_comp,
+                          comp_whiskerRight, assoc]
+                        rw [←(η.naturality_id _), ←assoc (_ ▷ _), η.naturality_naturality _, assoc]
+  naturality_comp _ _ := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
+                              PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                              PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                              Prefunctor.comp_map, Pseudofunctor.comp_mapComp, Iso.trans_hom,
+                              Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, whiskerLeft_comp,
+                              comp_whiskerRight, assoc]
+                            rw [←η.naturality_comp _ _, ←assoc (η.naturality _).hom,
+                            ←η.naturality_naturality _, assoc]
 
 @[simp]
-def whiskerLeft' (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (e : F ≌ G) : H.comp F ≌ H.comp G := sorry
+def whiskerLeftId' (H : B ⥤ᵖ C) (F : C ⥤ᵖ D) : 𝟙 (H.comp F) ≅ preWhisker H (𝟙 F) := Iso.refl _
+
+@[simp]
+def whiskerLeftComp' (H : B ⥤ᵖ C) {F G K : C ⥤ᵖ D} (η : F ⟶ G) (θ : G ⟶ K) :
+    preWhisker H (η ≫ θ) ≅ preWhisker H η ≫ preWhisker H θ := Iso.refl _
+
+@[simp]
+def whiskerLeftIso' (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} {η θ : F ⟶ G} (α : η ≅ θ) :
+    preWhisker H η ≅ preWhisker H θ where
+  hom := {
+    as := {
+      app _ := α.hom.as.app (H.obj _) } }
+  inv := {
+    as := {
+      app _ := α.inv.as.app (H.obj _) } }
+  hom_inv_id := by ext
+                   simp [←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ _) _]
+  inv_hom_id := by ext
+                   simp [←(Pseudofunctor.StrongTrans.homCategory_comp_as_app _ _) _]
+
+@[simp]
+def whiskerLeft' (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (e : F ≌ G) : H.comp F ≌ H.comp G :=
+  Equivalence.mkOfAdjointifyCounit ((whiskerLeftId' _ _).trans ((whiskerLeftIso' _ e.unit).trans
+  (whiskerLeftComp' _ _ _))) ((whiskerLeftComp' _ _ _).symm.trans
+  ((whiskerLeftIso' _ e.counit).trans (whiskerLeftId' _ _).symm))
 
 @[simp]
 def leftUnitor' (F : C ⥤ᵖ B) : (Pseudofunctor.id C).comp F ≌ F:= sorry
@@ -299,22 +332,16 @@ def symm (e : PreBiequivalence B C) : PreBiequivalence C B where
   unit := Equivalence.mkOfAdjointifyCounit e.counit.counit.symm e.counit.unit.symm 
   counit := Equivalence.mkOfAdjointifyCounit e.unit.counit.symm e.unit.unit.symm
 
-variable (e₁ : PreBiequivalence B C) (e₂ : PreBiequivalence C D)
-
-abbrev middleUnit : e₁.hom.comp e₁.inv ≌ (e₁.hom.comp e₂.hom).comp (e₂.inv.comp e₁.inv) :=
-  (whiskerLeft' _ (leftUnitor' _).symm).trans ((whiskerLeft' _ (whiskerRight' e₂.unit _)).trans
-  ((whiskerLeft' _ (associator' _ _ _)).trans (associator' _ _ _).symm))
-
-abbrev middleCounit : (e₂.inv.comp e₁.inv).comp (e₁.hom.comp e₂.hom) ≌ e₂.inv.comp e₂.hom :=
-  (associator' _ _ _).trans ((whiskerLeft' _ (associator' _ _ _).symm).trans
-  ((whiskerLeft' _ (whiskerRight' e₁.counit _)).trans (whiskerLeft' _ (leftUnitor' _))))
-
 /-- Transitivity of biequivalence. -/
 @[simp]
-def trans : PreBiequivalence B D where
+def trans (e₁ : PreBiequivalence B C) (e₂ : PreBiequivalence C D) : PreBiequivalence B D where
   hom := e₁.hom.comp e₂.hom
   inv := e₂.inv.comp e₁.inv
-  unit := e₁.unit.trans (middleUnit e₁ e₂)
-  counit := (middleCounit e₁ e₂).trans e₂.counit
+  unit := e₁.unit.trans ((whiskerLeft' _ (leftUnitor' _).symm).trans ((whiskerLeft' _ 
+    (whiskerRight' e₂.unit _)).trans ((whiskerLeft' _ (associator' _ _ _)).trans 
+    (associator' _ _ _).symm)))
+  counit := ((associator' _ _ _).trans ((whiskerLeft' _ (associator' _ _ _).symm).trans
+    ((whiskerLeft' _ (whiskerRight' e₁.counit _)).trans (whiskerLeft' _ (leftUnitor' _))))).trans
+    e₂.counit
 
 end PreBiequivalence
