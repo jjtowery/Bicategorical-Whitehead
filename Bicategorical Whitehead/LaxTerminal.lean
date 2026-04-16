@@ -47,7 +47,7 @@ structure LaxTerminal (t : C) where
 For lax functors `F, G : B ⥤ᴸ C`, a lax tranformation `k : F ⟶ G` is inc-lax if each component
 `k_X : FX ⟶ GX` is initial in the category `C(FX, GX)`. -/
 structure IncLax {F G : B ⥤ᴸ C} (k : Lax.LaxTrans F G) where
-  app_isInitial (X : B) : Limits.IsInitial (k.app X) := by cat_disch
+  app_isInitial (X : B) : Limits.IsInitial (k.app X)
 
 /-- Inc-lax terminal objects. 
 If `t : C` is lax terminal with lax transformation `k : 𝟙 C ⟶ Δₜ`, `t` is an inc-lax
@@ -68,8 +68,7 @@ FX -------> Ft -------> t'
 is initial in `C(FX, t')`. -/
 structure PreservesInitialComponents {t : B} {t' : C} (F : B ⥤ᴸ C)
     (h : IncLaxTerminal t) (h' : IncLaxTerminal t') where
-  comp_isInitial (X : B) : Limits.IsInitial (F.map (h.cone.app X) ≫ h'.cone.app (F.obj t)) := 
-    by cat_disch
+  comp_isInitial (X : B) : Limits.IsInitial (F.map (h.cone.app X) ≫ h'.cone.app (F.obj t))
 
 namespace PreservesInitialComponents
 
@@ -104,11 +103,9 @@ def id {t : B} (h : IncLaxTerminal t) : PreservesInitialComponents (LaxFunctor.i
 /-- Composite of initial component preserving functors preserves initial components.
 Note though that we need at least `G` a pseudofunctor for this to work. -/
 @[simp]
-def comp {t : B} {t' : C} {t'' : D}
-    {F : B ⥤ᴸ C} {G : C ⥤ᵖ D}
-    {h : IncLaxTerminal t} {h' : IncLaxTerminal t'} {h'' : IncLaxTerminal t''}
-    (hF : PreservesInitialComponents F h h') (hG : PreservesInitialComponents G h' h'') :
-    PreservesInitialComponents (F.comp G) h h'' where
+def comp {t : B} {t' : C} {t'' : D} {F : B ⥤ᴸ C} {G : C ⥤ᵖ D} {h : IncLaxTerminal t}
+    {h' : IncLaxTerminal t'} {h'' : IncLaxTerminal t''} (hF : PreservesInitialComponents F h h')
+    (hG : PreservesInitialComponents G h' h'') : PreservesInitialComponents (F.comp G) h h'' where
   comp_isInitial _ := Limits.IsInitial.ofIso (comp_isInitial_of_isInitial hG (hF.comp_isInitial _))
                         ((whiskerRightIso (G.mapComp (F.map _) _) _ ≪≫ (α_ _ _ _)) ≪≫ 
                         (whiskerLeftIso _) (Limits.IsInitial.uniqueUpToIso (hG.comp_isInitial _) 
