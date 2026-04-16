@@ -526,7 +526,7 @@ def core : StrictPseudofunctorCore (Comma F G) (Comma F H) where
 end mapRight
 
 /-- The change-of-right-leg strict pseudofunctor -/
-@[simps!]
+@[simp]
 def mapRight {H : B ⥤ᵒᵖᴸ T} (η : Oplax.LaxTrans G H) : StrictPseudofunctor (Comma F G) (Comma F H) 
     := StrictPseudofunctor.mk' (mapRight.core η)
 
@@ -648,7 +648,7 @@ def toLax₂ {F G : A ⥤ᵖ B} (η : Pseudofunctor.StrongTrans F G) :
                               ←Iso.cancel_iso_hom_right _ _ (η.naturality _)]
 
 /-- The change-of-slice strict pseudofunctor. -/
-@[simps!]
+@[simp]
 abbrev mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) : 
     StrictPseudofunctor (LaxSlice F x) (LaxSlice F y) := 
   mapRight (toLax (const.homStrongTrans f).toOplax)
@@ -670,7 +670,7 @@ on objects by `(a, b, φ) ↦ a`;
 on 1-cells by `(p, q, θ) ↦ p`;
 on 2-cells by `(α, β) ↦ α`.
 -/
-@[simps!]
+@[simp]
 def projLeft (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctor (Comma F G) A := 
   StrictPseudofunctor.mk' (projLeftCore F G)
 
