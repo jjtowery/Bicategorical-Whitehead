@@ -223,7 +223,7 @@ def whiskerRightComp {F G K : B ⥤ᵖ C} (η : F ⟶ G) (θ : G ⟶ K) (H : C �
                            ←PrelaxFunctor.map₂_comp]
                          simp } }
   hom_inv_id := by ext; simp
-  inv_hom_id := by ext; simp -- performance
+  inv_hom_id := by ext; simp
 
 @[simps]
 def whiskerRightIso {F G : B ⥤ᵖ C} {η θ : F ⟶ G} (α : η ≅ θ) (H : C ⥤ᵖ D) :
@@ -347,6 +347,25 @@ def leftUnitorUnit (F : C ⥤ᵖ B) :
   inv := {
     as := {
       app _ := (λ_ _).hom } }
+  hom_inv_id := by simp only [Pseudofunctor.comp_toPrelaxFunctor, Pseudofunctor.id_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_comp,
+                     Pseudofunctor.StrongTrans.categoryStruct_id_app, unitors_inv_equal,
+                     Pseudofunctor.toOplax_toPrelaxFunctor, Oplax.StrongTrans.toOplax_app,
+                     Pseudofunctor.StrongTrans.toOplax_app, leftUnitorInv_app, unitors_equal]
+                   ext
+                   simp
+  inv_hom_id := by simp only [Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Pseudofunctor.comp_toPrelaxFunctor, Pseudofunctor.id_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_comp,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     leftUnitorInv_app, unitors_equal,
+                     Pseudofunctor.StrongTrans.categoryStruct_id_app, unitors_inv_equal]
+                   ext
+                   simp
 
 @[simps]
 def leftUnitorCounit (F : C ⥤ᵖ B) : leftUnitorInv F ≫ leftUnitorHom F ≅ 𝟙 F where
@@ -373,6 +392,24 @@ def leftUnitorCounit (F : C ⥤ᵖ B) : leftUnitorInv F ≫ leftUnitorHom F ≅ 
                            Iso.cancel_iso_hom_left, Iso.cancel_iso_inv_left]
                          rw [leftUnitor_comp_inv, assoc, Iso.hom_inv_id]
                          simp } }
+  hom_inv_id := by simp only [Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Pseudofunctor.comp_toPrelaxFunctor, Pseudofunctor.id_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_comp,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     leftUnitorInv_app, Pseudofunctor.StrongTrans.categoryStruct_id_app]
+                   ext
+                   simp
+  inv_hom_id := by simp only [Pseudofunctor.StrongTrans.categoryStruct_id_app,
+                     Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.comp_toPrelaxFunctor,
+                     Pseudofunctor.id_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_comp,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     leftUnitorInv_app]
+                   ext
+                   simp
 
 @[simp]
 def leftUnitor (F : C ⥤ᵖ B) : (Pseudofunctor.id C).comp F ≌ F := 
@@ -415,6 +452,24 @@ def rightUnitorUnit (F : B ⥤ᵖ C) :
   inv := {
     as := {
       app _ := (ρ_ _).hom } }
+  hom_inv_id := by simp only [Pseudofunctor.comp_toPrelaxFunctor, Pseudofunctor.id_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.comp_id,
+                     Pseudofunctor.StrongTrans.categoryStruct_id_app,
+                     Pseudofunctor.toOplax_toPrelaxFunctor, Oplax.StrongTrans.toOplax_app,
+                     Pseudofunctor.StrongTrans.toOplax_app, rightUnitorHom_app]
+                   ext
+                   simp
+  inv_hom_id := by simp only [Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Pseudofunctor.comp_toPrelaxFunctor, Pseudofunctor.id_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.comp_id,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     rightUnitorHom_app, Pseudofunctor.StrongTrans.categoryStruct_id_app]
+                   ext;
+                   simp
 
 @[simps]
 def rightUnitorCounit (F : B ⥤ᵖ C) : rightUnitorInv F ≫ rightUnitorHom F ≅ 𝟙 F where
@@ -441,6 +496,24 @@ def rightUnitorCounit (F : B ⥤ᵖ C) : rightUnitorInv F ≫ rightUnitorHom F �
                            Iso.cancel_iso_hom_left, Iso.cancel_iso_inv_left]
                          rw [leftUnitor_comp_inv, assoc, Iso.hom_inv_id]
                          simp } }
+  hom_inv_id := by simp only [Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Pseudofunctor.comp_toPrelaxFunctor, Pseudofunctor.id_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.comp_id,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     rightUnitorInv_app, Pseudofunctor.StrongTrans.categoryStruct_id_app]
+                   ext
+                   simp
+  inv_hom_id := by simp only [Pseudofunctor.StrongTrans.categoryStruct_id_app,
+                     Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.comp_toPrelaxFunctor,
+                     Pseudofunctor.id_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+                     PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.comp_id,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     rightUnitorInv_app]
+                   ext
+                   simp
 
 @[simp]
 def rightUnitor (F : B ⥤ᵖ C) : F.comp (Pseudofunctor.id C) ≌ F :=
@@ -486,6 +559,23 @@ def associatorUnit (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) (H : D ⥤ᵖ E) :
   inv := {
     as := {
       app _ := (λ_ _).hom } }
+  hom_inv_id := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_assoc,
+                     Prefunctor.comp_obj, Pseudofunctor.StrongTrans.categoryStruct_id_app,
+                     unitors_inv_equal, Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     associatorInv_app, unitors_equal]
+                   ext
+                   simp
+  inv_hom_id := by simp only [Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_assoc,
+                     Prefunctor.comp_obj, Oplax.StrongTrans.toOplax_app,
+                     Pseudofunctor.StrongTrans.toOplax_app, associatorInv_app, unitors_equal,
+                     Pseudofunctor.StrongTrans.categoryStruct_id_app, unitors_inv_equal]
+                   ext
+                   simp
 
 @[simps]
 def associatorCounit (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) (H : D ⥤ᵖ E) :
@@ -510,6 +600,23 @@ def associatorCounit (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) (H : D ⥤ᵖ E) :
                            Iso.cancel_iso_hom_left, Iso.cancel_iso_inv_left]
                          rw [leftUnitor_comp_inv, assoc, Iso.hom_inv_id]
                          simp } }
+  hom_inv_id := by simp only [Pseudofunctor.toOplax_toPrelaxFunctor,
+                     Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                     Prefunctor.comp_assoc, Oplax.StrongTrans.toOplax_app,
+                     Pseudofunctor.StrongTrans.toOplax_app, associatorInv_app,
+                     Pseudofunctor.StrongTrans.categoryStruct_id_app]
+                   ext
+                   simp
+  inv_hom_id := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
+                     PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                     PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                     Pseudofunctor.StrongTrans.categoryStruct_id_app,
+                     Pseudofunctor.toOplax_toPrelaxFunctor, Prefunctor.comp_assoc,
+                     Oplax.StrongTrans.toOplax_app, Pseudofunctor.StrongTrans.toOplax_app,
+                     associatorInv_app]
+                   ext
+                   simp
 
 @[simp]
 def associator (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) (H : D ⥤ᵖ E) :
