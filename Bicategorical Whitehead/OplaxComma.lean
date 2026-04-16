@@ -649,13 +649,13 @@ def toLax₂ {F G : A ⥤ᵖ B} (η : Pseudofunctor.StrongTrans F G) :
 
 /-- The change-of-slice strict pseudofunctor. -/
 @[simp]
-abbrev mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) : 
+def mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) : 
     StrictPseudofunctor (LaxSlice F x) (LaxSlice F y) := 
   mapRight (toLax (const.homStrongTrans f).toOplax)
 
 /-- The change-of-coslice strict pseudofunctor. -/
 @[simps!]
-abbrev mapLeftCoslice {x y : T} (G : B ⥤ᵒᵖᴸ T) (f : y ⟶ x) :
+def mapLeftCoslice {x y : T} (G : B ⥤ᵒᵖᴸ T) (f : y ⟶ x) :
     StrictPseudofunctor (LaxCoslice G x) (LaxCoslice G y) := 
   mapLeft (toLax₂ (const.homStrongTrans f)).toLax
 
@@ -716,6 +716,30 @@ def laxProjArrow (F : A ⥤ᴸ T) (G : B ⥤ᵖ T) : Comma F G.toOplax ⥤ᴸ Ar
   mapComp _ _ := {
     left := _
     right := (G.mapComp _ _).inv }
+  mapComp_naturality_left _ _ := by simp only [Arrow, inst, instCategoryHom,
+                                      Pseudofunctor.toOplax_toPrelaxFunctor, comp_def, comp₁_left,
+                                      comp₁_right, comp₁_f, Pseudofunctor.toOplax_mapComp,
+                                      whiskerRight_left, whiskerRight_right,
+                                      Pseudofunctor.map₂_whisker_right]
+                                    ext
+                                    · simp
+                                    simp
+  mapComp_naturality_right _ _ _ _ := by simp only [Arrow, inst, instCategoryHom,
+                                           Pseudofunctor.toOplax_toPrelaxFunctor, comp_def,
+                                           comp₁_left, comp₁_right, comp₁_f,
+                                           Pseudofunctor.toOplax_mapComp, whiskerLeft_left,
+                                           whiskerLeft_right, Pseudofunctor.map₂_whisker_left]
+                                         ext
+                                         · simp
+                                         simp
+  map₂_associator _ _ _ := by simp only [Arrow, inst, instCategoryHom,
+                                Pseudofunctor.toOplax_toPrelaxFunctor, comp_def, comp₁_left,
+                                comp₁_right, comp₁_f, Pseudofunctor.toOplax_mapComp, associator_hom,
+                                associatorHom_left, associatorHom_right,
+                                Pseudofunctor.map₂_associator]
+                              ext
+                              · simp
+                              simp
   map₂_leftUnitor P := by simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left,
                             id₁_left, comp₁_right, id₁_right, comp₁_f, 
                             Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp,
@@ -767,6 +791,48 @@ def oplaxProjArrow (F : A ⥤ᵖ T) (G : B ⥤ᵒᵖᴸ T) : Comma F.toLax G ⥤
   mapComp _ _ := {
     left := (F.mapComp _ _).hom
     right := _ }
+  mapComp_naturality_left _ _ := by simp only [Arrow, inst, instCategoryHom,
+                                      Pseudofunctor.toLax_toPrelaxFunctor, comp_def, comp₁_left,
+                                      comp₁_right, comp₁_f, Pseudofunctor.toLax_mapComp,
+                                      whiskerRight_left, Pseudofunctor.map₂_whisker_right,
+                                      whiskerRight_right]
+                                    ext
+                                    · simp
+                                    simp
+  mapComp_naturality_right _ _ _ _ := by simp only [Arrow, inst, instCategoryHom,
+                                           Pseudofunctor.toLax_toPrelaxFunctor, comp_def,
+                                           comp₁_left, comp₁_right, comp₁_f,
+                                           Pseudofunctor.toLax_mapComp, whiskerLeft_left,
+                                           Pseudofunctor.map₂_whisker_left, whiskerLeft_right]
+                                         ext
+                                         · simp
+                                         simp
+  map₂_associator _ _ _ := by simp only [Arrow, inst, instCategoryHom,
+                                Pseudofunctor.toLax_toPrelaxFunctor, comp_def, comp₁_left,
+                                comp₁_right, comp₁_f, Pseudofunctor.toLax_mapComp, associator_hom,
+                                associatorHom_left, Pseudofunctor.map₂_associator,
+                                associatorHom_right]
+                              ext
+                              · simp
+                              simp
+  map₂_leftUnitor _ := by simp only [Arrow, inst, instCategoryHom,
+                            Pseudofunctor.toLax_toPrelaxFunctor, id_def, comp_def, comp₁_left,
+                            id₁_left, comp₁_right, id₁_right, comp₁_f, id₁_f,
+                            Pseudofunctor.toLax_mapId, Pseudofunctor.toLax_mapComp, leftUnitor_hom,
+                            leftUnitorHom_left, Pseudofunctor.map₂_left_unitor, leftUnitorHom_right,
+                            OplaxFunctor.map₂_leftUnitor]
+                          ext
+                          · simp
+                          simp
+  map₂_rightUnitor _ := by simp only [Arrow, inst, instCategoryHom,
+                             Pseudofunctor.toLax_toPrelaxFunctor, id_def, comp_def, comp₁_left,
+                             id₁_left, comp₁_right, id₁_right, comp₁_f, id₁_f,
+                             Pseudofunctor.toLax_mapId, Pseudofunctor.toLax_mapComp,
+                             rightUnitor_hom, rightUnitorHom_left, Pseudofunctor.map₂_right_unitor,
+                             rightUnitorHom_right, OplaxFunctor.map₂_rightUnitor]
+                           ext
+                           · simp
+                           simp
 
 @[simps]
 def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : 
@@ -777,14 +843,39 @@ def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) :
       right := _ }
     inv := {
       left := _ 
-      right := (G.mapId _).inv } }
+      right := (G.mapId _).inv } 
+    hom_inv_id := by simp only [Arrow, inst, instCategoryHom, id_def]
+                     ext
+                     · simp
+                     simp
+    inv_hom_id := by simp only [Arrow, inst, instCategoryHom, id_def]
+                     ext
+                     · simp
+                     simp }
   mapCompIso _ _ := {
     hom := {
       left := (F.mapComp _ _).hom
       right := _ }
     inv := {
       left := _
-      right := (G.mapComp _ _).inv } }
+      right := (G.mapComp _ _).inv } 
+    hom_inv_id := by simp only [Arrow, inst, instCategoryHom, comp_def]
+                     ext
+                     · simp
+                     simp
+    inv_hom_id := by simp only [Arrow, inst, instCategoryHom, comp_def]
+                     ext
+                     · simp
+                     simp }
+  mapIdIso_hom := by intro _
+                     simp only [Arrow, inst, instCategoryHom, id_def]
+                     ext
+                     · simp
+                     simp
+  mapCompIso_hom _ _ := by simp only [Arrow, inst, instCategoryHom, comp_def]
+                           ext
+                           · simp
+                           simp
 
 /-- When `F` and `G` are both pseudofunctors, then the arrow projection is a pseudofunctor. Given
 on objects by `(a, b, φ) ↦ (Fa, Gb, φ)`;
@@ -871,7 +962,21 @@ def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L 
                 rw [←assoc (η.naturality _).hom, 
                   ←assoc ((η.naturality _).hom ≫ _ ◁ G.map₂ (R.mapId _).hom), 
                   assoc (η.naturality _).hom, this]
-                simp [←comp_whiskerRight] } }
+                simp [←comp_whiskerRight] } 
+    hom_inv_id := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                       Prefunctor.comp_map, id_def]
+                     ext
+                     · simp
+                     simp 
+    inv_hom_id := by simp only [inst, instCategoryHom, id_def, Pseudofunctor.comp_toPrelaxFunctor,
+                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                       Prefunctor.comp_map]
+                     ext
+                     · simp
+                     simp }
   mapComp f g := {
     hom := {
       left := (L.mapComp f g).hom
@@ -920,6 +1025,59 @@ def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L 
                 rw [←assoc (η.naturality _).hom, 
                   ←assoc ((η.naturality _).hom ≫ _◁ G.map₂ (R.mapComp _ _).hom), 
                   assoc (η.naturality _).hom, this]
-                simp [←comp_whiskerRight] } }
+                simp [←comp_whiskerRight] } 
+    hom_inv_id := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                       Prefunctor.comp_map, comp_def] 
+                     ext
+                     · simp
+                     simp
+    inv_hom_id := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                       Prefunctor.comp_map, comp_def]
+                     ext
+                     · simp
+                     simp }
+  map₂_whisker_left _ _ _ _ := by simp only [inst, instCategoryHom,
+                                    Pseudofunctor.comp_toPrelaxFunctor,
+                                    PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                                    PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                                    Prefunctor.comp_map, Pseudofunctor.map₂_whisker_left, comp_def] 
+                                  ext
+                                  · simp
+                                  simp
+  map₂_whisker_right _ _ := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                                 PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                                 PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                                 Prefunctor.comp_map, Pseudofunctor.map₂_whisker_right, comp_def]
+                               ext
+                               · simp
+                               simp
+  map₂_associator _ _ _:= by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                               PrelaxFunctor.comp_toPrelaxFunctorStruct, 
+                               PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                               Prefunctor.comp_map, Pseudofunctor.map₂_associator, comp_def,
+                               associator_hom]
+                             ext
+                             · simp
+                             simp
+  map₂_left_unitor _ := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                             PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                             PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                             Prefunctor.comp_map, Pseudofunctor.map₂_left_unitor, comp_def, id_def,
+                             leftUnitor_hom]
+                           ext
+                           · simp
+                           simp
+  map₂_right_unitor _ := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+                              PrelaxFunctor.comp_toPrelaxFunctorStruct,
+                              PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
+                              Prefunctor.comp_map, Pseudofunctor.map₂_right_unitor, comp_def,
+                              id_def, rightUnitor_hom]
+                            ext
+                            · simp
+                            simp
 
 end Comma
