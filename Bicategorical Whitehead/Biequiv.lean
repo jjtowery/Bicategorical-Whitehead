@@ -544,9 +544,6 @@ def trans (e₁ : PreBiequivalence B C) (e₂ : PreBiequivalence C D) : PreBiequ
     ((whiskerLeft _ (whiskerRight e₁.counit _)).trans (whiskerLeft _ (leftUnitor _))))).trans
     e₂.counit
 
-end Biequivalence
-
-
 @[simp]
 def leftZigzag {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) :=
