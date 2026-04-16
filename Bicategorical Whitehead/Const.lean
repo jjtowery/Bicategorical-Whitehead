@@ -47,7 +47,7 @@ namespace const
 
 /-- Constant pseudofunctor with domain the singleton bicategory. -/
 @[simps!]
-abbrev fromPUnit (x : C) := const (LocallyDiscrete (Discrete PUnit)) x
+def fromPUnit (x : C) := const (LocallyDiscrete (Discrete PUnit)) x
 
 /-- Natural transformation induced from a 1-cell. -/
 @[simps]
