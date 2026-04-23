@@ -46,7 +46,7 @@ def const (B : Type*) [Bicategory.{w₁, v₁} B] (x : C) : B ⥤ᵖ C where
 namespace const
 
 /-- Constant pseudofunctor with domain the singleton bicategory. -/
-@[simps!]
+@[simp]
 def fromPUnit (x : C) := const (LocallyDiscrete (Discrete PUnit)) x
 
 /-- Natural transformation induced from a 1-cell. -/
