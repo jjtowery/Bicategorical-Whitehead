@@ -75,8 +75,7 @@ structure Biequivalence (B C : Type*) [Bicategory.{w₁, v₁} B] [Bicategory.{w
   inv : C ⥤ᵖ B
   unit : Pseudofunctor.id B ≌ hom.comp inv
   counit : inv.comp hom ≌ Pseudofunctor.id C
-  left_triangle : Biequivalence.leftZigzag unit counit ≅
-    (λ_ₚ hom).hom ≫ (ρ_ₚ hom).inv
+  left_triangle : Biequivalence.leftZigzag unit counit ≅ (λ_ₚ hom).hom ≫ (ρ_ₚ hom).inv
 
 namespace Biequivalence
 
