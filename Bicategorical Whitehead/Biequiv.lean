@@ -13,7 +13,8 @@ import Mathlib.CategoryTheory.Bicategory.FunctorBicategory.Pseudo
 # Biequivalences of bicategories.
 
 Defines biequivalences as half-biadjoint biequivalences. 
-Provides `Biequivalence.mk` that strictifies pseudoinverse data into a `Biequivalence`.
+Provides `Biequivalence.mkofAdjointifyCounit` that strictifies pseudoinverse data into a
+`Biequivalence`.
 
 Defines essentially surjective, essentially full, and fully faithful lax functors.
 
@@ -30,27 +31,6 @@ universe w₁ w₂ w₃ w₄ v₁ v₂ v₃ v₄
 
 open scoped Pseudofunctor.StrongTrans
 
-/-- A pre-biequivalence. 
-A pseudofunctor `F : B ⥤ᵖ C` is a pre-biequivalence if there is a pseudofunctor `G : C ⥤ᵖ B`
-with internal equivalences `𝟙 B ≌ GF` and `FG ≌ 𝟙 C` in their respective pseudofunctor bicategories.
-
-The internal equivalence `FG ≌ 𝟙 C` entails the following data:
-Strong transformations `ε : FG ⟶ 𝟙 C` and `ε' : 𝟙 C ⟶ FG`;
-Invertible modifications `Γ : 𝟙 (𝟙 C) ≅ εε'` and `Γ' : ε'ε ≅ 𝟙 (FG)`.
-
-The internal equivalence `𝟙 B ≌ GF` entails the following data:
-Strong transformations `η : 𝟙 B ⟶ GF` and `η' : GF ⟶ 𝟙 B`;
-Invertible modifications `θ : 𝟙 (𝟙 B) ≅ η'η` and `θ' : ηη' ≅ 𝟙 (GF)`.
-
-This is taken as the definition of biequivalence in Johnson-Yau, but in analogy with the
-1-category API, we want to consider biadjoint biequivalence as the definition of biequivalence,
-which pre-biequivalences can strictify to. -/
-@[ext]
-structure PreBiequivalence (B C : Type*) [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C] where
-  hom : B ⥤ᵖ C
-  inv : C ⥤ᵖ B
-  unit : Pseudofunctor.id B ≌ hom.comp inv
-  counit : inv.comp hom ≌ Pseudofunctor.id C
 
 variable {B C D E : Type*} [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C] [Bicategory.{w₃, v₃} D]
   [Bicategory.{w₄, v₄} E]
@@ -623,50 +603,32 @@ def associator (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) (H : D ⥤ᵖ E) :
     (F.comp G).comp H ≌ F.comp (G.comp H) :=
   Equivalence.mkOfAdjointifyCounit (associatorUnit F G H) (associatorCounit F G H)
 
-/-- Reflexivity of biequivalence. -/
-@[simps]
-def refl : PreBiequivalence B B where
-  hom := Pseudofunctor.id B
-  inv := Pseudofunctor.id B
-  unit := (leftUnitor (Pseudofunctor.id B)).symm
-  counit := leftUnitor (Pseudofunctor.id B)
-
-/-- Symmetry of biequivalence. -/
-@[simps]
-def symm (e : PreBiequivalence B C) : PreBiequivalence C B where
-  hom := e.inv
-  inv := e.hom
-  unit := Equivalence.mkOfAdjointifyCounit e.counit.counit.symm e.counit.unit.symm 
-  counit := Equivalence.mkOfAdjointifyCounit e.unit.counit.symm e.unit.unit.symm
-
-/-- Transitivity of biequivalence. -/
-@[simps]
-def trans (e₁ : PreBiequivalence B C) (e₂ : PreBiequivalence C D) : PreBiequivalence B D where
-  hom := e₁.hom.comp e₂.hom
-  inv := e₂.inv.comp e₁.inv
-  unit := e₁.unit.trans ((whiskerLeft _ (leftUnitor _).symm).trans ((whiskerLeft _ 
-    (whiskerRight e₂.unit _)).trans ((whiskerLeft _ (associator _ _ _)).trans 
-    (associator _ _ _).symm)))
-  counit := ((associator _ _ _).trans ((whiskerLeft _ (associator _ _ _).symm).trans
-    ((whiskerLeft _ (whiskerRight e₁.counit _)).trans (whiskerLeft _ (leftUnitor _))))).trans
-    e₂.counit
-
-end Biequivalence
-
-/-
 @[simp]
 def leftZigzag {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) :=
-    postWhisker η.hom F ≫ associatorHom F G F ≫ preWhisker F ε.hom
+  postWhisker η.hom F ≫ associatorHom F G F ≫ preWhisker F ε.hom
 
 @[simp]
 def rightZigzag {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) :=
-    preWhisker G η.hom ≫ associatorInv G F G ≫ postWhisker ε.hom G
+  preWhisker G η.hom ≫ associatorInv G F G ≫ postWhisker ε.hom G
 
 end Biequivalence
 
-/-- Biequivalences defined as half-biadjoint biequivalences. -/
+/-- Biequivalence defined as half-biadjoint biequivalence. 
+A pseudofunctor `F : B ⥤ᵖ C` is a biequivalence if there is a pseudofunctor `G : C ⥤ᵖ B`
+with internal equivalences `𝟙 B ≌ GF` and `FG ≌ 𝟙 C` in their respective pseudofunctor bicategories.
+
+The internal equivalence `FG ≌ 𝟙 C` entails the following data:
+Strong transformations `ε : FG ⟶ 𝟙 C` and `ε' : 𝟙 C ⟶ FG`;
+Invertible modifications `Γ : 𝟙 (𝟙 C) ≅ εε'` and `Γ' : ε'ε ≅ 𝟙 (FG)`.
+
+The internal equivalence `𝟙 B ≌ GF` entails the following data:
+Strong transformations `η : 𝟙 B ⟶ GF` and `η' : GF ⟶ 𝟙 B`;
+Invertible modifications `θ : 𝟙 (𝟙 B) ≅ η'η` and `θ' : ηη' ≅ 𝟙 (GF)`. 
+
+`Biequivalence.mkOfAdjointifyCounit` allows one to construct a `Biequivalence`
+from just this pseudo-inverse data. -/
 @[ext]
 structure Biequivalence (B C : Type*) [Bicategory.{w₁, v₁} B] [Bicategory.{w₂, v₂} C] where
   hom : B ⥤ᵖ C
@@ -678,7 +640,62 @@ structure Biequivalence (B C : Type*) [Bicategory.{w₁, v₁} B] [Bicategory.{w
 
 namespace Biequivalence
 
-/- Some auxillary definitions for the strictification result. -/
+/- Some definitions and lemmas for the strictification result.
+All of this should go to existing API/another file. -/
+
+@[simp]
+theorem Equivalence.trans_assoc {a b c d : B} (e₁ : a ≌ b) (e₂ : b ≌ c) (e₃ : c ≌ d) :
+    (e₁.trans e₂).trans e₃ = e₁.trans (e₂.trans e₃) := by sorry
+
+@[simp]
+theorem Equivalence.trans_id {a b : B} (e : a ≌ b) : e.trans (Equivalence.id b) = e := by sorry
+
+@[simp]
+theorem Equivalence.id_trans {a b : B} (e : a ≌ b) : (Equivalence.id a).trans e = e := by sorry
+
+@[simp]
+theorem Equivalence.trans_symm {a b : B} (e : a ≌ b) : e.trans e.symm = Equivalence.id a := by sorry
+
+@[simp]
+theorem Equivalence.symm_trans {a b : B} (e : a ≌ b) : e.symm.trans e = Equivalence.id b := by sorry
+
+@[simp]
+theorem Equivalence.symm_hom {a b : B} (e : a ≌ b) : e.symm.hom = e.inv := rfl
+
+@[simp]
+theorem Equivalence.symm_inv {a b : B} (e : a ≌ b) : e.symm.inv = e.hom := rfl
+
+@[simp]
+theorem Equivalence.trans_hom {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : (e₁.trans e₂).hom =
+    e₁.hom ≫ e₂.hom := rfl
+
+@[simp]
+theorem Equivalence.trans_inv {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : (e₁.trans e₂).inv =
+    e₂.inv ≫ e₁.inv := rfl
+
+@[simp]
+theorem whiskerLeft_leftUnitor (H : B ⥤ᵖ C) (F : C ⥤ᵖ D) : whiskerLeft H (leftUnitor F) =
+    (associator H (Pseudofunctor.id C) F).symm.trans (whiskerRight (rightUnitor H) F) := by sorry
+
+@[simp]
+theorem whiskerRight_rightUnitor (F : B ⥤ᵖ C) (H : C ⥤ᵖ D) : whiskerRight (rightUnitor F) H =
+    (associator F (Pseudofunctor.id C) H).trans (whiskerLeft F (leftUnitor H)) := by sorry
+
+@[simp]
+theorem whiskerLeft_symm (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (e : F ≌ G) : whiskerLeft H e.symm =
+    (whiskerLeft H e).symm := by sorry
+
+@[simp]
+theorem whiskerRight_symm {F G : B ⥤ᵖ C} (e : F ≌ G) (H : C ⥤ᵖ D) : whiskerRight e.symm H =
+    (whiskerRight e H).symm := by sorry
+
+@[simp]
+theorem whiskerLeft_trans (H : B ⥤ᵖ C) {F G K : C ⥤ᵖ D} (e₁ : F ≌ G) (e₂ : G ≌ K) :
+    whiskerLeft H (e₁.trans e₂) = (whiskerLeft H e₁).trans (whiskerLeft H e₂) := by sorry
+
+@[simp]
+theorem whiskerRight_trans {F G K : B ⥤ᵖ C} (e₁ : F ≌ G) (e₂ : G ≌ K) (H : C ⥤ᵖ D) :
+    whiskerRight (e₁.trans e₂) H = (whiskerRight e₁ H).trans (whiskerRight e₂ H) := by sorry
 
 @[simp]
 def leftZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
@@ -691,14 +708,71 @@ def rightZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B �
  (whiskerLeft G η).trans (((associator G F G).symm).trans (whiskerRight ε G))
 
 @[simp]
+theorem leftZigzagIso_symm {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : rightZigzagIso ε.symm η.symm = (leftZigzagIso η ε).symm :=
+  by sorry
+
+@[simp]
+theorem leftZigzagIso_whiskerLeft_trans {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
+    (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) (χ : F ≌ F) :
+    leftZigzagIso η ((whiskerLeft G χ).trans ε) =
+    (leftZigzagIso η ε).trans (whiskerRight χ (Pseudofunctor.id C)) := by sorry
+
+@[simp]
+theorem whiskerRight_id {F : B ⥤ᵖ C} (χ : F ≌ F) : whiskerRight χ (Pseudofunctor.id C) =
+    (rightUnitor F).trans (χ.trans (rightUnitor F).symm) := by sorry
+
+@[simp]
 def adjointifyCounit {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) :=
   (whiskerLeft G (((rightUnitor F).symm).trans 
   ((rightZigzagIso ε.symm η.symm).trans (leftUnitor F)))).trans ε
 
--- Difficult!
 @[simp]
 theorem adjointifyCounit_left_triangle_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
-  (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) :
-  (leftZigzagIso η (adjointifyCounit η ε)).hom = (leftUnitor F).hom ≫ (rightUnitor F).inv := by 
-    sorry -/
+    (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) :
+    (leftZigzagIso η (adjointifyCounit η ε)).hom = (leftUnitor F).hom ≫ (rightUnitor F).inv := by
+  let χ := ((rightUnitor F).symm).trans ((rightZigzagIso ε.symm η.symm).trans (leftUnitor F))
+  simp only [adjointifyCounit, χ, leftZigzagIso_whiskerLeft_trans η ε χ, whiskerRight_id]
+  have : χ = ((rightUnitor F).symm).trans (((leftZigzagIso η ε).symm).trans (leftUnitor F)) :=
+    by simp only [χ, leftZigzagIso_symm]
+  rw [leftZigzagIso_symm η ε, ←this]
+  have : (leftZigzagIso η ε).trans ((rightUnitor F).trans (χ.trans (rightUnitor F).symm)) =
+    (leftUnitor F).trans (rightUnitor F).symm := by simp only [this, ←Equivalence.trans_assoc,
+                                                   Equivalence.trans_symm, Equivalence.id_trans]
+  rw [this]
+  simp only [Equivalence.trans_hom, Equivalence.symm_hom]
+
+/-- Creates a biequivalence from pseudo-inverse data. -/
+@[simps]
+def mkOfAdjointifyCounit (hom : B ⥤ᵖ C) (inv : C ⥤ᵖ B) (unit : Pseudofunctor.id B ≌ hom.comp inv) 
+    (counit : inv.comp hom ≌ Pseudofunctor.id C) : Biequivalence B C where
+  hom := hom
+  inv := inv
+  unit := unit
+  counit := adjointifyCounit unit counit
+  left_triangle := eqToIso (adjointifyCounit_left_triangle_hom unit counit)
+
+/-- Reflexivity of biequivalence. -/
+@[simp]
+def refl : Biequivalence B B := mkOfAdjointifyCounit (Pseudofunctor.id B) (Pseudofunctor.id B)
+  (leftUnitor (Pseudofunctor.id B)).symm (leftUnitor (Pseudofunctor.id B))
+
+/-- Symmetry of biequivalence. -/
+@[simp]
+def symm (e : Biequivalence B C) : Biequivalence C B := mkOfAdjointifyCounit (e.inv) (e.hom)
+  (Equivalence.mkOfAdjointifyCounit e.counit.counit.symm e.counit.unit.symm)
+  (Equivalence.mkOfAdjointifyCounit e.unit.counit.symm e.unit.unit.symm)
+
+/-- Transitivity of biequivalence. -/
+@[simp]
+def trans (e₁ : Biequivalence B C) (e₂ : Biequivalence C D) : Biequivalence B D :=
+  mkOfAdjointifyCounit (e₁.hom.comp e₂.hom) (e₂.inv.comp e₁.inv)
+  (e₁.unit.trans ((whiskerLeft _ (leftUnitor _).symm).trans ((whiskerLeft _ 
+  (whiskerRight e₂.unit _)).trans ((whiskerLeft _ (associator _ _ _)).trans 
+  (associator _ _ _).symm))))
+  (((associator _ _ _).trans ((whiskerLeft _ (associator _ _ _).symm).trans
+  ((whiskerLeft _ (whiskerRight e₁.counit _)).trans (whiskerLeft _ (leftUnitor _))))).trans
+  e₂.counit)
+
+end Biequivalence
