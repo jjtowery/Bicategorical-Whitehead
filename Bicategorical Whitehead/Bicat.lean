@@ -575,8 +575,8 @@ def associator (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) (H : D ⥤ᵖ E) :
 
 scoped infixr:81 " ◁ₚ " => Bicat.whiskerLeft
 scoped infixl:81 " ▷ₚ " => Bicat.whiskerRight
-scoped notation "α_ₚ" => Bicat.associator
-scoped notation "λ_ₚ" => Bicat.leftUnitor
-scoped notation "ρ_ₚ" => Bicat.rightUnitor
+scoped notation "αₚ_" => Bicat.associator
+scoped notation "λₚ_" => Bicat.leftUnitor
+scoped notation "ρₚ_" => Bicat.rightUnitor
 
 end Bicat

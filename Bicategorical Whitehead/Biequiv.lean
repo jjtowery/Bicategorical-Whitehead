@@ -75,7 +75,7 @@ structure Biequivalence (B C : Type*) [Bicategory.{w₁, v₁} B] [Bicategory.{w
   inv : C ⥤ᵖ B
   unit : Pseudofunctor.id B ≌ hom.comp inv
   counit : inv.comp hom ≌ Pseudofunctor.id C
-  left_triangle : Biequivalence.leftZigzag unit counit ≅ (λ_ₚ hom).hom ≫ (ρ_ₚ hom).inv
+  left_triangle : Biequivalence.leftZigzag unit counit ≅ (λₚ_ hom).hom ≫ (ρₚ_ hom).inv
 
 namespace Biequivalence
 
@@ -137,10 +137,10 @@ theorem whiskerRight_trans {F G K : B ⥤ᵖ C} (e₁ : F ≌ G) (e₂ : G ≌ K
     whiskerRight (e₁.trans e₂) H = (whiskerRight e₁ H).trans (whiskerRight e₂ H) := by sorry -/
 
 def leftZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
-    (ε : G.comp F ≌ Pseudofunctor.id C) := (η ▷ₚ F).trans ((α_ₚ F G F).trans (F ◁ₚ ε))
+    (ε : G.comp F ≌ Pseudofunctor.id C) := (η ▷ₚ F).trans ((αₚ_ F G F).trans (F ◁ₚ ε))
 
 def rightZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
-    (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ η).trans (((α_ₚ G F G).symm).trans (ε ▷ₚ G))
+    (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ η).trans (((αₚ_ G F G).symm).trans (ε ▷ₚ G))
 
 @[simp]
 theorem leftZigzagIso_symm {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
@@ -154,22 +154,22 @@ theorem leftZigzagIso_whiskerLeft_trans {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
   sorry
 
 @[simp]
-theorem whiskerRight_id {F : B ⥤ᵖ C} (χ : F ≌ F) : Bicat.whiskerRight χ (Pseudofunctor.id C) =
-    (ρ_ₚ F).trans (χ.trans (ρ_ₚ F).symm) := by sorry
+theorem whiskerRight_id {F : B ⥤ᵖ C} (χ : F ≌ F) : χ ▷ₚ (Pseudofunctor.id C) =
+    (ρₚ_ F).trans (χ.trans (ρₚ_ F).symm) := by sorry
 
 @[simp]
 def adjointifyCounit {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
-    (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ (((ρ_ₚ F).symm).trans
-    ((rightZigzagIso ε.symm η.symm).trans (λ_ₚ F)))).trans ε
+    (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ (((ρₚ_ F).symm).trans
+  ((rightZigzagIso ε.symm η.symm).trans (λₚ_ F)))).trans ε
 
 @[simp]
 theorem adjointifyCounit_left_triangle_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
     (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) :
-    (leftZigzagIso η (adjointifyCounit η ε)).hom = (λ_ₚ F).hom ≫ (ρ_ₚ F).inv := by
-  let χ := ((ρ_ₚ F).symm).trans (((leftZigzagIso η ε).symm).trans (λ_ₚ F))
-  have h : χ = ((ρ_ₚ F).symm).trans (((leftZigzagIso η ε).symm).trans (λ_ₚ F)) := by simp [χ]
-  have : (leftZigzagIso η ε).trans ((ρ_ₚ F).trans (χ.trans (ρ_ₚ F).symm)) =
-    (λ_ₚ F).trans (ρ_ₚ F).symm := by simp [h, ←Equivalence.trans_assoc]
+    (leftZigzagIso η (adjointifyCounit η ε)).hom = (λₚ_ F).hom ≫ (ρₚ_ F).inv := by
+  let χ := ((ρₚ_ F).symm).trans (((leftZigzagIso η ε).symm).trans (λₚ_ F))
+  have h : χ = ((ρₚ_ F).symm).trans (((leftZigzagIso η ε).symm).trans (λₚ_ F)) := by simp [χ]
+  have : (leftZigzagIso η ε).trans ((ρₚ_ F).trans (χ.trans (ρₚ_ F).symm)) =
+    (λₚ_ F).trans (ρₚ_ F).symm := by simp [h, ←Equivalence.trans_assoc]
   simp [←h, this]
 
 /-- Creates a biequivalence from pseudo-inverse data. -/
@@ -183,7 +183,7 @@ def mkOfAdjointifyCounit (hom : B ⥤ᵖ C) (inv : C ⥤ᵖ B) (unit : Pseudofun
 
 /-- Reflexivity of biequivalence. -/
 def refl : Biequivalence B B := mkOfAdjointifyCounit (Pseudofunctor.id B) (Pseudofunctor.id B)
-  (λ_ₚ (Pseudofunctor.id B)).symm (λ_ₚ (Pseudofunctor.id B))
+  (λₚ_ (Pseudofunctor.id B)).symm (λₚ_ (Pseudofunctor.id B))
 
 /-- Symmetry of biequivalence. -/
 def symm (e : Biequivalence B C) : Biequivalence C B := mkOfAdjointifyCounit (e.inv) (e.hom)
@@ -193,8 +193,8 @@ def symm (e : Biequivalence B C) : Biequivalence C B := mkOfAdjointifyCounit (e.
 /-- Transitivity of biequivalence. -/
 def trans (e₁ : Biequivalence B C) (e₂ : Biequivalence C D) : Biequivalence B D :=
   mkOfAdjointifyCounit (e₁.hom.comp e₂.hom) (e₂.inv.comp e₁.inv)
-  (e₁.unit.trans ((_ ◁ₚ (λ_ₚ _).symm).trans ((_ ◁ₚ (e₂.unit ▷ₚ _)).trans ((_ ◁ₚ (α_ₚ _ _ _)).trans 
-  (α_ₚ _ _ _).symm)))) (((α_ₚ _ _ _).trans ((_ ◁ₚ (α_ₚ _ _ _).symm).trans
-  ((_ ◁ₚ (e₁.counit ▷ₚ _)).trans (_ ◁ₚ (λ_ₚ _))))).trans e₂.counit)
+  (e₁.unit.trans ((_ ◁ₚ (λₚ_ _).symm).trans ((_ ◁ₚ (e₂.unit ▷ₚ _)).trans ((_ ◁ₚ (αₚ_ _ _ _)).trans 
+  (αₚ_ _ _ _).symm)))) (((αₚ_ _ _ _).trans ((_ ◁ₚ (αₚ_ _ _ _).symm).trans
+  ((_ ◁ₚ (e₁.counit ▷ₚ _)).trans (_ ◁ₚ (λₚ_ _))))).trans e₂.counit)
 
 end Biequivalence
