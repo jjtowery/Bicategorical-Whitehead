@@ -81,23 +81,7 @@ namespace Biequivalence
 
 /- Some definitions and lemmas for the strictification result.
 All of this should go to existing API/another file. -/
-
-@[simp]
-theorem Equivalence.trans_assoc {a b c d : B} (e₁ : a ≌ b) (e₂ : b ≌ c) (e₃ : c ≌ d) :
-    (e₁.trans e₂).trans e₃ = e₁.trans (e₂.trans e₃) := by sorry
-
-@[simp]
-theorem Equivalence.trans_id {a b : B} (e : a ≌ b) : e.trans (Equivalence.id b) = e := by sorry
-
-@[simp]
-theorem Equivalence.id_trans {a b : B} (e : a ≌ b) : (Equivalence.id a).trans e = e := by sorry
-
-@[simp]
-theorem Equivalence.trans_symm {a b : B} (e : a ≌ b) : e.trans e.symm = Equivalence.id a := by sorry
-
-@[simp]
-theorem Equivalence.symm_trans {a b : B} (e : a ≌ b) : e.symm.trans e = Equivalence.id b := by sorry
-
+/-
 @[simp]
 theorem Equivalence.symm_hom {a b : B} (e : a ≌ b) : e.symm.hom = e.inv := rfl
 
@@ -110,7 +94,24 @@ theorem Equivalence.trans_hom {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : (e
 
 @[simp]
 theorem Equivalence.trans_inv {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : (e₁.trans e₂).inv =
-    e₂.inv ≫ e₁.inv := rfl
+    e₂.inv ≫ e₁.inv := rfl -/
+/-
+@[simp]
+theorem Equivalence.trans_assoc {a b c d : B} (e₁ : a ≌ b) (e₂ : b ≌ c) (e₃ : c ≌ d) :
+    (e₁.trans e₂).trans e₃ = e₁.trans (e₂.trans e₃) := sorry
+
+@[simp]
+theorem Equivalence.trans_id {a b : B} (e : a ≌ b) : e.trans (Equivalence.id b) = e := by sorry
+
+@[simp]
+theorem Equivalence.id_trans {a b : B} (e : a ≌ b) : (Equivalence.id a).trans e = e := by sorry
+
+@[simp]
+theorem Equivalence.trans_symm {a b : B} (e : a ≌ b) : e.trans e.symm = Equivalence.id a := by sorry
+
+@[simp]
+theorem Equivalence.symm_trans {a b : B} (e : a ≌ b) : e.symm.trans e = Equivalence.id b := by sorry -/
+
 /-
 @[simp]
 theorem whiskerLeft_leftUnitor (H : B ⥤ᵖ C) (F : C ⥤ᵖ D) : whiskerLeft H (leftUnitor F) =
@@ -119,15 +120,18 @@ theorem whiskerLeft_leftUnitor (H : B ⥤ᵖ C) (F : C ⥤ᵖ D) : whiskerLeft H
 @[simp]
 theorem whiskerRight_rightUnitor (F : B ⥤ᵖ C) (H : C ⥤ᵖ D) : whiskerRight (rightUnitor F) H =
     (associator F (Pseudofunctor.id C) H).trans (whiskerLeft F (leftUnitor H)) := by sorry
+-/
+/- 
+@[simp]
+theorem whiskerLeft_symm (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (e : F ≌ G) : H ◁ₚ e.symm =
+    (H ◁ₚ e).symm := by
+  sorry
 
 @[simp]
-theorem whiskerLeft_symm (H : B ⥤ᵖ C) {F G : C ⥤ᵖ D} (e : F ≌ G) : whiskerLeft H e.symm =
-    (whiskerLeft H e).symm := by sorry
-
-@[simp]
-theorem whiskerRight_symm {F G : B ⥤ᵖ C} (e : F ≌ G) (H : C ⥤ᵖ D) : whiskerRight e.symm H =
-    (whiskerRight e H).symm := by sorry
-
+theorem whiskerRight_symm {F G : B ⥤ᵖ C} (e : F ≌ G) (H : C ⥤ᵖ D) : e.symm ▷ₚ H =
+    (e ▷ₚ H).symm := by
+  sorry -/
+/-
 @[simp]
 theorem whiskerLeft_trans (H : B ⥤ᵖ C) {F G K : C ⥤ᵖ D} (e₁ : F ≌ G) (e₂ : G ≌ K) :
     whiskerLeft H (e₁.trans e₂) = (whiskerLeft H e₁).trans (whiskerLeft H e₂) := by sorry
@@ -139,38 +143,95 @@ theorem whiskerRight_trans {F G K : B ⥤ᵖ C} (e₁ : F ≌ G) (e₂ : G ≌ K
 def leftZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) := (η ▷ₚ F).trans ((αₚ_ F G F).trans (F ◁ₚ ε))
 
+@[simp]
+theorem leftZigzagIso_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : (leftZigzagIso η ε).hom = leftZigzag η ε := rfl
+
 def rightZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ η).trans (((αₚ_ G F G).symm).trans (ε ▷ₚ G))
-
+/-
 @[simp]
-theorem leftZigzagIso_symm {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
-    (ε : G.comp F ≌ Pseudofunctor.id C) : rightZigzagIso ε.symm η.symm = (leftZigzagIso η ε).symm :=
-  by sorry
+theorem rightZigzagIso_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : (rightZigzagIso η ε).hom = rightZigzag η ε := rfl-/
 
-@[simp]
-theorem leftZigzagIso_whiskerLeft_trans {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
+def leftZigzagIso_symm_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : (rightZigzagIso ε.symm η.symm).hom ≅
+    (leftZigzagIso η ε).inv := (α_ _ _ _).symm
+/- 
+def leftZigzagIso_symm_inv {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : (rightZigzagIso ε.symm η.symm).inv ≅
+    (leftZigzagIso η ε).hom := α_ _ _ _ -/
+
+def leftZigzag_congr_counit_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} {η : Pseudofunctor.id B ≌ F.comp G}
+    {ε₁ ε₂ : G.comp F ≌ Pseudofunctor.id C} (h : ε₁.hom ≅ ε₂.hom) : leftZigzag η ε₁ ≅
+    leftZigzag η ε₂ := (α_ _ _ _).symm ≪≫
+  whiskerLeftIso (postWhisker η.hom F ≫ associatorHom F G F) (Bicat.whiskerLeftIso F h) ≪≫ α_ _ _ _
+
+def leftZigzagIso_whiskerLeft_trans_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
     (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) (χ : F ≌ F) :
-    leftZigzagIso η ((G ◁ₚ χ).trans ε) = (leftZigzagIso η ε).trans (χ ▷ₚ (Pseudofunctor.id C)) := by
-  sorry
+    (leftZigzagIso η ((G ◁ₚ χ).trans ε)).hom ≅ (leftZigzagIso η ε).hom ≫ (χ ▷ₚ Pseudofunctor.id C).hom := sorry
 
 @[simp]
-theorem whiskerRight_id {F : B ⥤ᵖ C} (χ : F ≌ F) : χ ▷ₚ (Pseudofunctor.id C) =
-    (ρₚ_ F).trans (χ.trans (ρₚ_ F).symm) := by sorry
+theorem rightUnitor_hom_app (F : B ⥤ᵖ C) (a : B) : (ρₚ_ F).hom.app a = 𝟙 (F.obj a) := rfl
 
 @[simp]
+theorem rightUnitor_hom_naturality_hom (F : B ⥤ᵖ C) {a b : B} (f : a ⟶ b) :
+    ((ρₚ_ F).hom.naturality f).hom = (ρ_ (F.map f)).hom ≫ (λ_ (F.map f)).inv := rfl
+
+def rightUnitor_naturality_hom {F : B ⥤ᵖ C} (χ : F ≌ F) : (χ ▷ₚ Pseudofunctor.id C).hom ≫
+    (ρₚ_ F).hom ≅ (ρₚ_ F).hom ≫ χ.hom where
+  hom := {
+    as := {
+      app _ := (ρ_ _).hom ≫ (λ_ _).inv } }
+  inv := {
+    as := {
+      app _ := (λ_ _).hom ≫ (ρ_ _).inv } }
+  hom_inv_id := by ext; simp
+  inv_hom_id := by ext; simp
+
+def whiskerRight_id_hom {F : B ⥤ᵖ C} (χ : F ≌ F) : (χ ▷ₚ Pseudofunctor.id C).hom ≅
+    (ρₚ_ F).hom ≫ (χ.hom ≫ (ρₚ_ F).inv) := (ρ_ _).symm ≪≫ whiskerLeftIso _ (ρₚ_ _).unit ≪≫
+  (α_ _ _ _).symm ≪≫ whiskerRightIso (rightUnitor_naturality_hom _) _ ≪≫ (α_ _ _ _)
+
 def adjointifyCounit {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
-    (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ (((ρₚ_ F).symm).trans
-  ((rightZigzagIso ε.symm η.symm).trans (λₚ_ F)))).trans ε
+    (ε : G.comp F ≌ Pseudofunctor.id C) := (_ ◁ₚ (((ρₚ_ _).symm).trans
+  ((rightZigzagIso ε.symm η.symm).trans (λₚ_ _)))).trans ε
 
-@[simp]
-theorem adjointifyCounit_left_triangle_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
+def adjointifyCounit_correction_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : (((ρₚ_ F).symm).trans
+    ((rightZigzagIso ε.symm η.symm).trans (λₚ_ F))).hom ≅ (((ρₚ_ F).symm).trans
+    (((leftZigzagIso η ε).symm).trans (λₚ_ F))).hom := by
+  simpa using whiskerLeftIso _ (whiskerRightIso (leftZigzagIso_symm_hom _ _) _)
+
+def adjointifyCounit_counit_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : (((G ◁ₚ (((ρₚ_ F).symm).trans
+    ((rightZigzagIso ε.symm η.symm).trans (λₚ_ F)))).trans ε).hom) ≅ (((G ◁ₚ (((ρₚ_ F).symm).trans
+    (((leftZigzagIso η ε).symm).trans (λₚ_ F)))).trans ε).hom) := by
+ simpa using whiskerRightIso (Bicat.whiskerLeftIso _ (adjointifyCounit_correction_hom _ _)) _
+
+def adjointifyCounit_replace {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
+    (ε : G.comp F ≌ Pseudofunctor.id C) : leftZigzag η (adjointifyCounit η ε) ≅ leftZigzag η
+    ((G ◁ₚ (((ρₚ_ F).symm).trans (((leftZigzagIso η ε).symm).trans (λₚ_ F)))).trans ε) := by
+  simpa using leftZigzag_congr_counit_hom (η := η) (adjointifyCounit_counit_hom _ _)
+
+def adjointifyCounit_left_triangle_expand {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
     (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) :
-    (leftZigzagIso η (adjointifyCounit η ε)).hom = (λₚ_ F).hom ≫ (ρₚ_ F).inv := by
-  let χ := ((ρₚ_ F).symm).trans (((leftZigzagIso η ε).symm).trans (λₚ_ F))
-  have h : χ = ((ρₚ_ F).symm).trans (((leftZigzagIso η ε).symm).trans (λₚ_ F)) := by simp [χ]
-  have : (leftZigzagIso η ε).trans ((ρₚ_ F).trans (χ.trans (ρₚ_ F).symm)) =
-    (λₚ_ F).trans (ρₚ_ F).symm := by simp [h, ←Equivalence.trans_assoc]
-  simp [←h, this]
+    leftZigzag η ((G ◁ₚ ((ρₚ_ F).symm.trans (((leftZigzagIso η ε).symm).trans (λₚ_ F)))).trans ε) ≅
+    (leftZigzagIso η ε).hom ≫ (ρₚ_ F).hom ≫ (((ρₚ_ F).inv ≫ (leftZigzagIso η ε).inv ≫ (λₚ_ F).hom) ≫
+    (ρₚ_ F).inv) := by
+  calc
+   _ ≅ (leftZigzagIso η (((_ ◁ₚ ((ρₚ_ _).symm.trans
+       ((leftZigzagIso η ε).symm.trans (λₚ_ _))))).trans ε)).hom := eqToIso (by simp)
+   _ ≅ (leftZigzagIso η ε).hom ≫ (((ρₚ_ _).symm.trans
+       ((leftZigzagIso η ε).symm.trans (λₚ_ _))) ▷ₚ _).hom := by
+     simpa using leftZigzagIso_whiskerLeft_trans_hom _ _ _  
+   _ ≅ (leftZigzagIso η ε).hom ≫ ((ρₚ_ _).hom ≫ (((ρₚ_ F).symm.trans
+       ((leftZigzagIso η ε).symm.trans (λₚ_ _)))).hom ≫ (ρₚ_ _).inv) := whiskerLeftIso _
+     (whiskerRight_id_hom ((ρₚ_ _).symm.trans ((leftZigzagIso η ε).symm.trans (λₚ_ _))))
+   _ ≅ _  := by
+     have : ((ρₚ_ _).symm.trans ((leftZigzagIso η ε).symm.trans (λₚ_ _))).hom =
+         (ρₚ_ _).inv ≫ ((leftZigzagIso η ε).inv ≫ (λₚ_ _).hom) := by rfl
+     exact whiskerLeftIso _ (whiskerLeftIso _ (whiskerRightIso (eqToIso this) _))
 
 /-- Creates a biequivalence from pseudo-inverse data. -/
 def mkOfAdjointifyCounit (hom : B ⥤ᵖ C) (inv : C ⥤ᵖ B) (unit : Pseudofunctor.id B ≌ hom.comp inv) 
@@ -179,7 +240,12 @@ def mkOfAdjointifyCounit (hom : B ⥤ᵖ C) (inv : C ⥤ᵖ B) (unit : Pseudofun
   inv := inv
   unit := unit
   counit := adjointifyCounit unit counit
-  left_triangle := eqToIso (adjointifyCounit_left_triangle_hom unit counit)
+  left_triangle := adjointifyCounit_replace _ _ ≪≫ adjointifyCounit_left_triangle_expand _ _ ≪≫
+    whiskerLeftIso _ ((α_ _ _ _).symm) ≪≫ whiskerLeftIso _ (whiskerRightIso ((α_ _ _ _).symm) _) ≪≫
+    whiskerLeftIso _ (whiskerRightIso (whiskerRightIso (ρₚ_ _).unit.symm _) _) ≪≫
+    whiskerLeftIso _ (whiskerRightIso (λ_ _) _) ≪≫ (α_ _ _ _).symm ≪≫
+    whiskerRightIso ((α_ _  _ _).symm) _ ≪≫
+    whiskerRightIso (whiskerRightIso (leftZigzagIso _ _).unit.symm _) _ ≪≫ whiskerRightIso (λ_ _) _
 
 /-- Reflexivity of biequivalence. -/
 def refl : Biequivalence B B := mkOfAdjointifyCounit (Pseudofunctor.id B) (Pseudofunctor.id B)
