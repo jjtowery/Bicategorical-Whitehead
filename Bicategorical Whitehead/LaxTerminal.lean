@@ -91,14 +91,12 @@ def comp_isInitial_of_isInitial {t : B} {t' : C} {F : B ⥤ᴸ C} {h : IncLaxTer
 /-- Identity preserves initial components. -/
 @[simp]
 def id {t : B} (h : IncLaxTerminal t) : PreservesInitialComponents (LaxFunctor.id B) h h where
-  comp_isInitial X := by simp only [LaxFunctor.id_toPrelaxFunctor, 
-                           PrelaxFunctor.id_toPrelaxFunctorStruct,
-                           PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_obj, 
-                           Pseudofunctor.toLax_toPrelaxFunctor, 
-                           const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, 
-                           Prefunctor.id_map, IncLaxTerminal.app_self_eq_id]
-                         exact Limits.IsInitial.ofIso (h.inc.app_isInitial _) 
-                           (ρ_ _).symm
+  comp_isInitial X := by
+    simp only [LaxFunctor.id_toPrelaxFunctor, PrelaxFunctor.id_toPrelaxFunctorStruct,
+      PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_obj, Pseudofunctor.toLax_toPrelaxFunctor, 
+      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Prefunctor.id_map,
+      IncLaxTerminal.app_self_eq_id]
+    exact Limits.IsInitial.ofIso (h.inc.app_isInitial _) (ρ_ _).symm
 
 /-- Composite of initial component preserving functors preserves initial components.
 Note though that we need at least `G` a pseudofunctor for this to work. -/

@@ -126,8 +126,9 @@ def comp₂ {X Y : Comma F G} {P Q R : X ⟶ Y} (η : Hom₂ P Q) (θ : Hom₂ Q
     Hom₂ P R where
   left := _ ≫ _
   right := _ ≫ _
-  icc := by simp only [PrelaxFunctor.map₂_comp, comp_whiskerRight, whiskerLeft_comp, assoc]
-            rw [←assoc, η.icc, ←θ.icc, assoc]
+  icc := by
+    simp only [PrelaxFunctor.map₂_comp, comp_whiskerRight, whiskerLeft_comp, assoc]
+    rw [←assoc, η.icc, ←θ.icc, assoc]
 
 /-- Hom category on 1-cells. -/
 @[simp]
@@ -141,107 +142,84 @@ instance {X Y : Comma F G} : Category (X ⟶ Y) where
 def whiskerLeft {X Y Z : Comma F G} (P : X ⟶ Y) {Q R : Y ⟶ Z} (η : Q ⟶ R) : P ≫ Q ⟶ P ≫ R where
   left := _ ◁ η.left
   right := _ ◁ _
-  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, assoc]
-            rw [←comp_whiskerRight]
-            simp only [LaxFunctor.mapComp_naturality_right, comp_whiskerRight, whisker_assoc,
-              assoc, Iso.inv_hom_id_assoc]
-            rw [←assoc (F.map P.left ◁ Q.f), ←whiskerLeft_comp]
-            simp only [η.icc, whiskerLeft_comp, assoc]
-            rw [←assoc (X.hom ◁ G.map₂ (P.right ◁ η.right)), ←whiskerLeft_comp]
-            simp only [OplaxFunctor.mapComp_naturality_right, whiskerLeft_comp, assoc]
-            rw [←assoc (X.hom ◁ G.map P.right ◁ G.map₂ η.right), associator_inv_naturality_right,
-              ←assoc ((α_ (F.map P.left) Y.hom (G.map Q.right)).hom), ←associator_naturality_right,
-              assoc, assoc, ←assoc ((X.hom ≫ G.map P.right) ◁ G.map₂ η.right), whisker_exchange]
-            simp
+  icc := by
+    simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, assoc]
+    rw [←comp_whiskerRight]
+    simp only [LaxFunctor.mapComp_naturality_right, comp_whiskerRight, whisker_assoc, assoc,
+      Iso.inv_hom_id_assoc]
+    rw [←assoc (F.map _ ◁ _), ←whiskerLeft_comp]
+    simp only [η.icc, whiskerLeft_comp, assoc]
+    rw [←assoc (_ ◁ G.map₂ _), ←whiskerLeft_comp]
+    simp only [OplaxFunctor.mapComp_naturality_right, whiskerLeft_comp, assoc]
+    rw [←assoc (_ ◁ G.map _ ◁  _), associator_inv_naturality_right, ←assoc ((α_ _ _ _).hom),
+      ←associator_naturality_right, assoc, assoc, ←assoc ((X.hom ≫ G.map P.right) ◁ G.map₂ η.right),
+      whisker_exchange]
+    simp
 
 /-- Right whiskering, given directly by the right whiskering on the base categories. -/
 @[simps]
 def whiskerRight {X Y Z : Comma F G} {P Q : X ⟶ Y} (η : P ⟶ Q) (R : Y ⟶ Z) : P ≫ R ⟶ Q ≫ R where
   left := η.left ▷ _
   right := _ ▷ _
-  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, assoc]
-            rw [←comp_whiskerRight]
-            simp only [LaxFunctor.mapComp_naturality_left, comp_whiskerRight]
-            rw [←assoc ((α_ (F.map P.left) (F.map R.left) Z.hom).inv),
-              ←associator_inv_naturality_left, ←assoc (X.hom ◁ G.map₂ (η.right ▷ R.right)),
-              ←whiskerLeft_comp, OplaxFunctor.mapComp_naturality_left, whiskerLeft_comp, assoc,
-              assoc, whisker_assoc_symm, assoc, assoc,
-              ←assoc ((α_ X.hom (G.map Q.right) (G.map R.right)).hom), Iso.hom_inv_id, id_comp,
-              ←assoc ((X.hom ◁ G.map₂ η.right) ▷ G.map R.right ), ←comp_whiskerRight, ←η.icc,
-              comp_whiskerRight, assoc, ←assoc (F.map₂ η.left ▷ Y.hom ▷ G.map R.right),
-              associator_naturality_left, ←assoc (F.map P.left ◁ R.f), whisker_exchange]
-            simp
+  icc := by
+    simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, assoc]
+    rw [←comp_whiskerRight]
+    simp only [LaxFunctor.mapComp_naturality_left, comp_whiskerRight]
+    rw [←assoc ((α_ (F.map _) _ _).inv), ←associator_inv_naturality_left, ←assoc (_ ◁ G.map₂ _),
+      ←whiskerLeft_comp, OplaxFunctor.mapComp_naturality_left, whiskerLeft_comp, assoc, assoc,
+      whisker_assoc_symm, assoc, assoc, ←assoc ((α_ X.hom _ _).hom), Iso.hom_inv_id, id_comp,
+      ←assoc ((_ ◁ _) ▷ _), ←comp_whiskerRight, ←η.icc, comp_whiskerRight, assoc,
+      ←assoc (_ ▷ _ ▷ _), associator_naturality_left, ←assoc (_ ◁ R.f), whisker_exchange]
+    simp
 
 @[simps]
 def associatorHom {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) : 
     (P ≫ Q) ≫ R ⟶ P ≫ Q ≫ R where
   left := (α_ _ _ _).hom
   right := (α_ _ _ _).hom
-  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, comp_whiskerRight, 
-              whisker_assoc, assoc, Iso.inv_hom_id_assoc, whiskerLeft_comp]
-            rw [←assoc (X.hom ◁ G.mapComp (P.right ≫ Q.right) R.right), ←whiskerLeft_comp, 
-              OplaxFunctor.mapComp_assoc_left]
-            simp only [whiskerLeft_comp, assoc, pentagon_inv_assoc]
-            rw [←assoc (X.hom ◁ G.map P.right ◁ G.mapComp Q.right R.right), 
-              associator_inv_naturality_right, assoc, 
-              ←assoc ((α_ (X.hom ≫ G.map P.right) (G.map Q.right) (G.map R.right)).inv), 
-              ←associator_inv_naturality_left, assoc, 
-              ←assoc ((X.hom ≫ G.map P.right) ◁ G.mapComp Q.right R.right), whisker_exchange]
-            simp only [comp_whiskerLeft, pentagon_inv_hom_hom_hom_inv_assoc, assoc, 
-              Iso.inv_hom_id_assoc]
-            rw [←assoc (F.mapComp P.left Q.left ▷ Z.hom ▷ G.map R.right), 
-              associator_naturality_left, assoc, 
-              ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
-              ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv ≫ 
-               (α_ (F.map P.left) (F.map Q.left) Z.hom).inv ▷ G.map R.right), 
-               assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
-               pentagon_inv_inv_hom_hom_inv, assoc, 
-               ←assoc (F.mapComp P.left Q.left ▷ (Z.hom ≫ G.map R.right)), ←whisker_exchange]
-            simp only [comp_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
-              Iso.inv_hom_id_assoc]
-            rw [←comp_whiskerRight, ←comp_whiskerRight]
-            simp
+  icc := by
+    simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, comp_whiskerRight, whisker_assoc, assoc,
+      Iso.inv_hom_id_assoc, whiskerLeft_comp]
+    rw [←assoc (_ ◁ _), ←whiskerLeft_comp, OplaxFunctor.mapComp_assoc_left]
+    simp only [whiskerLeft_comp, assoc, pentagon_inv_assoc]
+    rw [←assoc (_ ◁ _ ◁ _), associator_inv_naturality_right, assoc, ←assoc ((α_ (_ ≫ _) _ _).inv), 
+      ←associator_inv_naturality_left, assoc, ←assoc (_ ◁ G.mapComp Q.right _), whisker_exchange]
+    simp only [comp_whiskerLeft, pentagon_inv_hom_hom_hom_inv_assoc, assoc, Iso.inv_hom_id_assoc]
+    rw [←assoc (_ ▷ _ ▷ _), associator_naturality_left, assoc, ←assoc ((α_ (F.map _) _ _).inv), 
+      ←assoc ((α_ _ _ _).inv ≫ _), assoc ((α_ _ _ _).inv), pentagon_inv_inv_hom_hom_inv, assoc, 
+      ←assoc (_ ▷ (_ ≫ _)), ←whisker_exchange]
+    simp only [comp_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc,
+      Iso.inv_hom_id_assoc]
+    rw [←comp_whiskerRight, ←comp_whiskerRight]
+    simp
 
 @[simps]
 def associatorInv {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) :
     P ≫ Q ≫ R ⟶ (P ≫ Q) ≫ R where
   left := (α_ _ _ _).inv
   right := (α_ _ _ _).inv
-  icc := by simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, whiskerLeft_comp, assoc, 
-              comp_whiskerRight, whisker_assoc, Iso.inv_hom_id_assoc]
-            rw [←assoc (X.hom ◁ G.mapComp (P.right ≫ Q.right) R.right), ←whiskerLeft_comp, 
-              OplaxFunctor.mapComp_assoc_left, 
-              ←assoc (X.hom ◁ G.map₂ (α_ P.right Q.right R.right).inv), ←whiskerLeft_comp, 
-              ←assoc (G.map₂ (α_ P.right Q.right R.right).inv), ←PrelaxFunctor.map₂_comp]
-            simp only [Iso.inv_hom_id, PrelaxFunctor.map₂_id, id_comp, whiskerLeft_comp, 
-              assoc, pentagon_inv_assoc]
-            rw [←assoc (X.hom ◁ G.map P.right ◁ G.mapComp Q.right R.right), 
-              associator_inv_naturality_right, assoc, 
-              ←assoc (α_ (X.hom ≫ G.map P.right) (G.map Q.right) (G.map R.right)).inv, 
-              ←associator_inv_naturality_left, 
-              ←assoc ((α_ (F.map P.left) Y.hom (G.map (Q.right ≫ R.right))).hom),
-              ←associator_naturality_right, assoc, ←assoc (P.f ▷ G.map (Q.right ≫ R.right)), 
-              ←whisker_exchange]
-            simp only [comp_whiskerLeft, whiskerRight_comp, assoc, 
-              pentagon_hom_hom_inv_hom_hom_assoc, Iso.inv_hom_id_assoc, Iso.hom_inv_id, comp_id]
-            rw [←assoc (F.mapComp P.left Q.left ▷ Z.hom ▷ G.map R.right), 
-              associator_naturality_left, assoc, 
-              ←assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
-              ←assoc (((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv ≫ 
-              (α_ (F.map P.left) (F.map Q.left) Z.hom).inv ▷ G.map R.right)), 
-              assoc ((α_ (F.map P.left) (F.map Q.left ≫ Z.hom) (G.map R.right)).inv), 
-              pentagon_inv_inv_hom_hom_inv, assoc, 
-              ←assoc (F.mapComp P.left Q.left ▷ (Z.hom ≫ G.map R.right)), ←whisker_exchange]
-            simp only [comp_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
-              Iso.inv_hom_id_assoc]
-            rw [←assoc ((α_ (F.map P.left ≫ F.map Q.left) (F.map R.left) W.hom).inv), 
-              ←associator_inv_naturality_left, assoc, 
-              ←assoc (F.map P.left ◁ F.mapComp Q.left R.left ▷ W.hom), 
-              associator_inv_naturality_middle, assoc, 
-              ←assoc ((F.map P.left ◁ F.mapComp Q.left R.left) ▷ W.hom), ←comp_whiskerRight, 
-              LaxFunctor.mapComp_assoc_right, comp_whiskerRight, assoc, ←comp_whiskerRight, 
-              assoc, assoc, ←PrelaxFunctor.map₂_comp]
-            simp
+  icc := by
+    simp only [comp_def, comp₁_right, comp₁_left, comp₁_f, whiskerLeft_comp, assoc,
+      comp_whiskerRight, whisker_assoc, Iso.inv_hom_id_assoc]
+    rw [←assoc (_ ◁ G.mapComp (_ ≫ _) _), ←whiskerLeft_comp, OplaxFunctor.mapComp_assoc_left, 
+      ←assoc (_ ◁ G.map₂ _), ←whiskerLeft_comp, ←assoc (G.map₂ _), ←PrelaxFunctor.map₂_comp]
+    simp only [Iso.inv_hom_id, PrelaxFunctor.map₂_id, id_comp, whiskerLeft_comp, assoc,
+      pentagon_inv_assoc]
+    rw [←assoc (_ ◁ G.map _ ◁ _), associator_inv_naturality_right, assoc,
+      ←assoc (α_ (_ ≫ _) _ _).inv, ←associator_inv_naturality_left, ←assoc (α_ _ _ _).hom,
+      ←associator_naturality_right, assoc, ←assoc (_ ▷ _), ←whisker_exchange]
+    simp only [comp_whiskerLeft, whiskerRight_comp, assoc, pentagon_hom_hom_inv_hom_hom_assoc,
+      Iso.inv_hom_id_assoc, Iso.hom_inv_id, comp_id]
+    rw [←assoc (_ ▷ Z.hom ▷ _), associator_naturality_left, assoc, ←assoc (α_ _ (_ ≫ _) _).inv, 
+      ←assoc ((_ ≫ _ ▷ _)), assoc (α_ _ _ _).inv, pentagon_inv_inv_hom_hom_inv, assoc,
+      ←assoc (F.mapComp _ _ ▷ _), ←whisker_exchange]
+    simp only [comp_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc,
+      Iso.inv_hom_id_assoc]
+    rw [←assoc (α_ (_ ≫ _) _ _).inv, ←associator_inv_naturality_left, assoc,
+      ←assoc (_ ◁ _ ▷ W.hom), associator_inv_naturality_middle, assoc, ←assoc (_ ▷ W.hom),
+      ←comp_whiskerRight, LaxFunctor.mapComp_assoc_right, comp_whiskerRight, assoc,
+      ←comp_whiskerRight, assoc, assoc, ←PrelaxFunctor.map₂_comp]
+    simp
             
 /-- Associator, given directly by the associator on the base categories. -/
 @[simps]
@@ -254,35 +232,32 @@ def associator {X Y Z W : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) (R : Z ⟶ W) :
 def leftUnitorHom {X Y : Comma F G} (P : X ⟶ Y) : 𝟙 X ≫ P ⟶ P where
   left := _
   right := (λ_ _).hom
-  icc := by simp only [id_def, comp_def, comp₁_right, id₁_right, comp₁_left, id₁_left, comp₁_f, 
-              id₁_f, comp_whiskerRight, whisker_assoc, leftUnitor_inv_whiskerRight, assoc, 
-              triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc, OplaxFunctor.map₂_leftUnitor, 
-              whiskerLeft_comp]
-            rw [←assoc (F.mapId X.left ▷ X.hom ▷ G.map P.right), associator_naturality_left, assoc, 
-              ←assoc ((α_ (𝟙 (F.obj X.left)) X.hom (G.map P.right)).inv), Iso.inv_hom_id, id_comp, 
-              ←assoc (F.mapId X.left ▷ (X.hom ≫ G.map P.right)), ←whisker_exchange]
-            simp only [id_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
-              Iso.inv_hom_id_assoc]
-            rw [←comp_whiskerRight, ←comp_whiskerRight, ←LaxFunctor.map₂_leftUnitor_hom]
-            simp
+  icc := by
+    simp only [id_def, comp_def, comp₁_right, id₁_right, comp₁_left, id₁_left, comp₁_f, id₁_f,
+      comp_whiskerRight, whisker_assoc, leftUnitor_inv_whiskerRight, assoc,
+      triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc, OplaxFunctor.map₂_leftUnitor,
+      whiskerLeft_comp]
+    rw [←assoc (_ ▷ _ ▷ _), associator_naturality_left, assoc, ←assoc ((α_ _ _ _).inv),
+      Iso.inv_hom_id, id_comp, ←assoc (_ ▷ _), ←whisker_exchange]
+    simp only [id_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, Iso.inv_hom_id_assoc]
+    rw [←comp_whiskerRight, ←comp_whiskerRight, ←LaxFunctor.map₂_leftUnitor_hom]
+    simp
 
 @[simps]
 def leftUnitorInv {X Y : Comma F G} (P : X ⟶ Y) : P ⟶ 𝟙 X ≫ P where
   left := (λ_ _).inv
   right := _
-  icc := by simp only [id_def, comp_def, comp₁_left, id₁_left, LaxFunctor.map₂_leftUnitor, 
-              comp_whiskerRight, leftUnitor_inv_whiskerRight, assoc, comp₁_right, id₁_right, 
-              comp₁_f, id₁_f, whisker_assoc, triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc]
-            rw [←assoc (F.mapId X.left ▷ X.hom ▷ G.map P.right), associator_naturality_left, assoc, 
-              ←assoc ((α_ (𝟙 (F.obj X.left)) X.hom (G.map P.right)).inv), Iso.inv_hom_id, id_comp, 
-              ←assoc (F.mapId X.left ▷ (X.hom ≫ G.map P.right)), ←whisker_exchange]
-            simp only [id_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, 
-              Iso.inv_hom_id_assoc]
-            rw [←assoc (X.hom ◁ G.mapComp (𝟙 X.right) P.right), ←whiskerLeft_comp, 
-              ←assoc (X.hom ◁ (G.mapComp (𝟙 X.right) P.right ≫ G.mapId X.right ▷ G.map P.right)), 
-              ←whiskerLeft_comp, assoc, ←OplaxFunctor.map₂_leftUnitor, 
-              ←assoc (X.hom ◁ G.map₂ (λ_ P.right).inv), ←whiskerLeft_comp, ←PrelaxFunctor.map₂_comp]
-            simp
+  icc := by
+    simp only [id_def, comp_def, comp₁_left, id₁_left, LaxFunctor.map₂_leftUnitor,
+      comp_whiskerRight, leftUnitor_inv_whiskerRight, assoc, comp₁_right, id₁_right, comp₁_f, id₁_f,
+      whisker_assoc, triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc]
+    rw [←assoc (_ ▷ _ ▷ _), associator_naturality_left, assoc, ←assoc (α_ _ X.hom _).inv,
+      Iso.inv_hom_id, id_comp, ←assoc (_ ▷ _), ←whisker_exchange]
+    simp only [id_whiskerLeft, whiskerRight_comp, assoc, Iso.hom_inv_id_assoc, Iso.inv_hom_id_assoc]
+    rw [←assoc (_ ◁ G.mapComp _ _), ←whiskerLeft_comp, ←assoc (_ ◁ (_ ≫ _ ▷ _)), ←whiskerLeft_comp,
+      assoc, ←OplaxFunctor.map₂_leftUnitor, ←assoc (_ ◁ G.map₂ (λ_ _).inv), ←whiskerLeft_comp,
+      ←PrelaxFunctor.map₂_comp]
+    simp
             
 /-- Left unitor, given directly by the left unitor on the base categories. -/
 @[simps]
@@ -294,35 +269,32 @@ def leftUnitor {X Y : Comma F G} (P : X ⟶ Y) : 𝟙 X ≫ P ≅ P where
 def rightUnitorHom {X Y : Comma F G} (P : X ⟶ Y) : P ≫ 𝟙 Y ⟶ P where
   left := _
   right := (ρ_ _).hom
-  icc := by simp only [id_def, comp_def, comp₁_right, id₁_right, comp₁_left, id₁_left, comp₁_f, 
-              id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, 
-              OplaxFunctor.map₂_rightUnitor]
-            rw [←assoc (F.map P.left ◁ Y.hom ◁ G.mapId Y.right), associator_inv_naturality_right, 
-              assoc, ←assoc ((α_ (F.map P.left) Y.hom (G.map (𝟙 Y.right))).hom), Iso.hom_inv_id, 
-              id_comp, ←assoc (P.f ▷ G.map (𝟙 Y.right)), ←whisker_exchange]
-            simp only [comp_whiskerLeft, whiskerRight_id, assoc, Iso.inv_hom_id_assoc]
-            rw [←assoc (F.map P.left ◁ F.mapId Y.left ▷ Y.hom), associator_inv_naturality_middle, 
-            assoc, ←comp_whiskerRight, ←comp_whiskerRight, ←LaxFunctor.map₂_rightUnitor_hom]
-            simp
+  icc := by
+    simp only [id_def, comp_def, comp₁_right, id₁_right, comp₁_left, id₁_left, comp₁_f, id₁_f,
+      whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, OplaxFunctor.map₂_rightUnitor]
+    rw [←assoc (_◁ _ ◁ _), associator_inv_naturality_right, assoc, ←assoc (α_ _ _ _).hom,
+      Iso.hom_inv_id, id_comp, ←assoc (_ ▷ _), ←whisker_exchange]
+    simp only [comp_whiskerLeft, whiskerRight_id, assoc, Iso.inv_hom_id_assoc]
+    rw [←assoc (_◁ _ ▷ _), associator_inv_naturality_middle, assoc, ←comp_whiskerRight,
+      ←comp_whiskerRight, ←LaxFunctor.map₂_rightUnitor_hom]
+    simp
 
 @[simps]
 def rightUnitorInv {X Y : Comma F G} (P : X ⟶ Y) : P ⟶ P ≫ 𝟙 Y where
   left := (ρ_ _).inv
   right := _
-  icc := by simp only [id_def, comp_def, comp₁_left, id₁_left, LaxFunctor.map₂_rightUnitor, 
-              comp_whiskerRight, whisker_assoc, assoc, triangle_assoc_comp_right_inv_assoc, 
-              comp₁_right, id₁_right, comp₁_f, id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor]
-            rw [←assoc (F.map P.left ◁ Y.hom ◁ G.mapId Y.right), associator_inv_naturality_right, 
-              assoc, ←assoc ((α_ (F.map P.left) Y.hom (G.map (𝟙 Y.right))).hom), Iso.hom_inv_id, 
-              id_comp, ←assoc (P.f ▷ G.map (𝟙 Y.right)), ←whisker_exchange]
-            simp only [comp_whiskerLeft, whiskerRight_id, assoc, Iso.inv_hom_id_assoc]
-            rw [rightUnitor_comp, assoc, 
-              ←assoc ((α_ X.hom (G.map P.right) (𝟙 (G.obj Y.right))).inv), Iso.inv_hom_id, id_comp, 
-              ←assoc (X.hom ◁ G.mapComp P.right (𝟙 Y.right)), ←whiskerLeft_comp, 
-              ←assoc (X.hom ◁ (G.mapComp P.right (𝟙 Y.right) ≫ G.map P.right ◁ G.mapId Y.right)), 
-              ←whiskerLeft_comp, assoc, ←OplaxFunctor.map₂_rightUnitor, 
-              ←assoc (X.hom ◁ G.map₂ (ρ_ P.right).inv), ←whiskerLeft_comp, ←PrelaxFunctor.map₂_comp]
-            simp 
+  icc := by
+    simp only [id_def, comp_def, comp₁_left, id₁_left, LaxFunctor.map₂_rightUnitor,
+      comp_whiskerRight, whisker_assoc, assoc, triangle_assoc_comp_right_inv_assoc, comp₁_right,
+      id₁_right, comp₁_f, id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor]
+    rw [←assoc (_ ◁ _ ◁ _), associator_inv_naturality_right, assoc, ←assoc (α_ _ _ _).hom,
+      Iso.hom_inv_id, id_comp, ←assoc (_ ▷ _), ←whisker_exchange]
+    simp only [comp_whiskerLeft, whiskerRight_id, assoc, Iso.inv_hom_id_assoc]
+    rw [rightUnitor_comp, assoc, ←assoc (α_ _ _ _).inv, Iso.inv_hom_id, id_comp,
+      ←assoc (_ ◁ G.mapComp _ _), ←whiskerLeft_comp, ←assoc (_ ◁ (_ ≫ _ ◁ _)), ←whiskerLeft_comp,
+      assoc, ←OplaxFunctor.map₂_rightUnitor, ←assoc (_ ◁ G.map₂ (ρ_ _).inv), ←whiskerLeft_comp,
+      ←PrelaxFunctor.map₂_comp]
+    simp 
 
 /-- Right unitor, given directly by the right unitor on the base categories. -/
 @[simps]
@@ -380,51 +352,39 @@ def map {X Y : Comma F G} (P : X ⟶ Y) : obj η X ⟶ obj η Y where
 def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : map η P ⟶ map η Q where 
   left := θ.left 
   right := θ.right 
-  icc := by simp only [obj_left, obj_right, obj_hom, map_right, map_left, map_f, whiskerRight_comp, 
-              assoc, Iso.hom_inv_id_assoc, comp_whiskerLeft, Iso.inv_hom_id_assoc, 
-              Iso.cancel_iso_hom_left]
-            rw [←assoc (η.naturality P.left ▷ Y.hom), ←comp_whiskerRight, 
-              Lax.LaxTrans.naturality_naturality]
-            simp only [comp_whiskerRight, whisker_assoc, assoc, Iso.inv_hom_id_assoc]
-            rw [←assoc (η.app X.left ◁ P.f), ←whiskerLeft_comp, θ.icc] 
-            simp
+  icc := by
+    simp only [obj_left, obj_right, obj_hom, map_right, map_left, map_f, whiskerRight_comp, assoc,
+    Iso.hom_inv_id_assoc, comp_whiskerLeft, Iso.inv_hom_id_assoc, Iso.cancel_iso_hom_left]
+    rw [←assoc (_ ▷ _), ←comp_whiskerRight, Lax.LaxTrans.naturality_naturality]
+    simp only [comp_whiskerRight, whisker_assoc, assoc, Iso.inv_hom_id_assoc]
+    rw [←assoc (_ ◁ _), ←whiskerLeft_comp, θ.icc] 
+    simp
 
 @[simp]
 theorem map_id (X : Comma F G) : map η (𝟙 X) = 𝟙 (obj η X) := by
   simp only [id_def]
-  apply Hom₁.ext
-  all_goals simp only [obj_left, obj_right, obj_hom, map_right, id₁_right, map_left, 
-    id₁_left, map_f, id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, 
-    comp_whiskerLeft, whiskerRight_comp, heq_eq_eq, Iso.cancel_iso_hom_left]
-  rw [←assoc (η.app X.left ◁ F.mapId X.left ▷ X.hom), associator_inv_naturality_middle, assoc, 
-    ←assoc ((η.app X.left ◁ F.mapId X.left) ▷ X.hom), ←comp_whiskerRight, 
-    Lax.LaxTrans.naturality_id]
+  apply Hom₁.ext <;> simp only [obj_left, obj_right, obj_hom, map_right, id₁_right, map_left, 
+    id₁_left, map_f, id₁_f, whiskerLeft_comp, whiskerLeft_rightUnitor, assoc, comp_whiskerLeft,
+    whiskerRight_comp, heq_eq_eq, Iso.cancel_iso_hom_left]
+  rw [←assoc (_ ◁ _ ▷ _), associator_inv_naturality_middle, assoc, ←assoc (_ ▷ _),
+    ←comp_whiskerRight, Lax.LaxTrans.naturality_id]
   simp
 
 @[simp]
 theorem map_comp {X Y Z : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) : 
     map η (P ≫ Q) = map η P ≫ map η Q := by
   simp only [Comma.comp_def]
-  apply Hom₁.ext
-  all_goals simp only [obj_left, obj_right, obj_hom, map_right, comp₁_right, map_left, 
-    comp₁_left, map_f, comp₁_f, whiskerLeft_comp, assoc, comp_whiskerLeft, 
-    comp_whiskerRight, whisker_assoc, whiskerRight_comp,
-    pentagon_hom_inv_inv_inv_inv_assoc, pentagon_assoc, pentagon_inv_hom_hom_hom_inv_assoc, 
-    Iso.inv_hom_id_assoc, heq_eq_eq, Iso.cancel_iso_hom_left]
-  rw [←assoc (η.app X.left ◁ F.mapComp P.left Q.left ▷ Z.hom), associator_inv_naturality_middle, 
-    assoc, ←assoc ((η.app X.left ◁ F.mapComp P.left Q.left) ▷ Z.hom), ←comp_whiskerRight, 
-    Lax.LaxTrans.naturality_comp]
+  apply Hom₁.ext <;> simp only [obj_left, obj_right, obj_hom, map_right, comp₁_right, map_left, 
+    comp₁_left, map_f, comp₁_f, whiskerLeft_comp, assoc, comp_whiskerLeft, comp_whiskerRight,
+    whisker_assoc, whiskerRight_comp, pentagon_hom_inv_inv_inv_inv_assoc, pentagon_assoc,
+    pentagon_inv_hom_hom_hom_inv_assoc, Iso.inv_hom_id_assoc, heq_eq_eq, Iso.cancel_iso_hom_left]
+  rw [←assoc (_ ◁ _ ▷ Z.hom), associator_inv_naturality_middle, assoc, ←assoc (_ ▷ _),
+    ←comp_whiskerRight, Lax.LaxTrans.naturality_comp]
   simp only [comp_whiskerRight, whisker_assoc, assoc, pentagon_inv_assoc]
-  rw [←assoc (η.app X.left ◁ F.map P.left ◁ Q.f), associator_inv_naturality_right, assoc, 
-    ←assoc (η.naturality P.left ▷ Y.hom ▷ G.map Q.right), 
-    associator_naturality_left (η.naturality P.left), assoc, 
-    ←assoc ((α_ (η.app X.left) (F.map P.left ≫ Y.hom) (G.map Q.right)).inv), 
-    ←assoc ((α_ (η.app X.left) (F.map P.left ≫ Y.hom) (G.map Q.right)).inv ≫ 
-    (α_ (η.app X.left) (F.map P.left) Y.hom).inv ▷ G.map Q.right), 
-    assoc ((α_ (η.app X.left) (F.map P.left ≫ Y.hom) (G.map Q.right)).inv), 
-    pentagon_inv_inv_hom_hom_inv, assoc, 
-    ←assoc ((α_ (η.app X.left ≫ F.map P.left) (F.map Q.left) Z.hom).inv), 
-    ←associator_inv_naturality_left, assoc, ←assoc ((η.app X.left ≫ F.map P.left) ◁ Q.f), 
+  rw [←assoc (_ ◁ _ ◁ Q.f), associator_inv_naturality_right, assoc, ←assoc (_ ▷ _ ▷ G.map _),
+    associator_naturality_left (η.naturality _), assoc, ←assoc (α_ (η.app _) (_ ≫ _) _).inv,
+    ←assoc (_ ≫ _ ▷_), assoc (α_ _ _ _).inv, pentagon_inv_inv_hom_hom_inv, assoc,
+    ←assoc (α_ (_ ≫ _) _ _).inv, ←associator_inv_naturality_left, assoc, ←assoc (_ ◁ Q.f),
     whisker_exchange]
   simp
 
@@ -439,7 +399,7 @@ def core : StrictPseudofunctorCore (Comma F G) (Comma H G) where
 end mapLeft
 
 /-- The change-of-left-leg strict pseudofunctor. -/
-@[simps!]
+@[simp]
 def mapLeft {H : A ⥤ᴸ T} (η : Lax.LaxTrans H F) : StrictPseudofunctor (Comma F G) (Comma H G) := 
   StrictPseudofunctor.mk' (mapLeft.core η)
 
@@ -470,48 +430,39 @@ def map {X Y : Comma F G} (P : X ⟶ Y) : obj η X ⟶ obj η Y where
 def map₂ {X Y : Comma F G} {P Q : X ⟶ Y} (θ : P ⟶ Q) : map η P ⟶ map η Q where 
   left := θ.left 
   right := θ.right 
-  icc := by simp only [obj_left, obj_right, obj_hom, map_right, map_left, map_f, whiskerRight_comp, 
-              assoc, Iso.hom_inv_id_assoc, comp_whiskerLeft, Iso.inv_hom_id_assoc, 
-              Iso.cancel_iso_hom_left]
-            rw [←assoc (X.hom ◁ η.app X.right ◁ H.map₂ θ.right), ←whiskerLeft_comp, 
-              ←Oplax.LaxTrans.naturality_naturality, whiskerLeft_comp, assoc, 
-              ←assoc (X.hom ◁ G.map₂ θ.right ▷ η.app Y.right), associator_inv_naturality_middle, 
-              assoc, ←assoc (P.f ▷ η.app Y.right), ←comp_whiskerRight, θ.icc]
-            simp
+  icc := by
+    simp only [obj_left, obj_right, obj_hom, map_right, map_left, map_f, whiskerRight_comp, assoc,
+      Iso.hom_inv_id_assoc, comp_whiskerLeft, Iso.inv_hom_id_assoc, Iso.cancel_iso_hom_left]
+    rw [←assoc (_ ◁ _ ◁ _), ←whiskerLeft_comp, ←Oplax.LaxTrans.naturality_naturality,
+      whiskerLeft_comp, assoc, ←assoc (_ ◁ _ ▷ _), associator_inv_naturality_middle, assoc,
+      ←assoc (_ ▷ _), ←comp_whiskerRight, θ.icc]
+    simp
 
 @[simp]
 theorem map_id (X : Comma F G) : map η (𝟙 X) = 𝟙 (obj η X) := by
   simp only [id_def]
-  apply Hom₁.ext
-  all_goals simp only [obj_left, obj_right, obj_hom, map_right, id₁_right, map_left, id₁_left, 
-    map_f, id₁_f, comp_whiskerRight, whisker_assoc, leftUnitor_inv_whiskerRight, assoc, 
+  apply Hom₁.ext <;> simp only [obj_left, obj_right, obj_hom, map_right, id₁_right, map_left,
+    id₁_left, map_f, id₁_f, comp_whiskerRight, whisker_assoc, leftUnitor_inv_whiskerRight, assoc, 
     triangle_assoc_comp_right_assoc, Iso.inv_hom_id_assoc, comp_whiskerLeft, whiskerRight_comp, 
     heq_eq_eq, Iso.cancel_iso_hom_left]
-  rw [←assoc (X.hom ◁ η.naturality (𝟙 X.right)), ←whiskerLeft_comp, Oplax.LaxTrans.naturality_id]
+  rw [←assoc (_ ◁ _), ←whiskerLeft_comp, Oplax.LaxTrans.naturality_id]
   simp
 
 @[simp]
 theorem map_comp {X Y Z : Comma F G} (P : X ⟶ Y) (Q : Y ⟶ Z) : 
     map η (P ≫ Q) = map η P ≫ map η Q := by
   simp only [comp_def]
-  apply Hom₁.ext
-  all_goals simp only [obj_left, obj_right, obj_hom, map_right, comp₁_right, map_left, comp₁_left, 
-    map_f, comp₁_f, comp_whiskerRight, whisker_assoc, assoc, Iso.inv_hom_id_assoc, 
+  apply Hom₁.ext <;> simp only [obj_left, obj_right, obj_hom, map_right, comp₁_right, map_left,
+    comp₁_left, map_f, comp₁_f, comp_whiskerRight, whisker_assoc, assoc, Iso.inv_hom_id_assoc, 
     comp_whiskerLeft, whiskerLeft_comp, whiskerRight_comp, pentagon_hom_inv_inv_inv_inv_assoc, 
     pentagon_assoc, pentagon_inv_hom_hom_hom_inv_assoc, heq_eq_eq, Iso.cancel_iso_hom_left]
-  rw [←assoc (X.hom ◁ η.naturality (P.right ≫ Q.right)), ←whiskerLeft_comp, 
-    Oplax.LaxTrans.naturality_comp]
+  rw [←assoc (_ ◁ _), ←whiskerLeft_comp, Oplax.LaxTrans.naturality_comp]
   simp only [whiskerLeft_comp, assoc, pentagon_inv_assoc]
-  rw [←assoc (X.hom ◁ G.map P.right ◁ η.naturality Q.right), associator_inv_naturality_right, 
-    assoc, ←assoc (P.f ▷ η.app Y.right ▷ H.map Q.right), associator_naturality_left P.f, assoc, 
-    ←assoc ((α_ X.hom (G.map P.right ≫ η.app Y.right) (H.map Q.right)).inv), 
-    ←assoc ((α_ X.hom (G.map P.right ≫ η.app Y.right) (H.map Q.right)).inv ≫ 
-    (α_ X.hom (G.map P.right) (η.app Y.right)).inv ▷ H.map Q.right), 
-    assoc ((α_ X.hom (G.map P.right ≫ η.app Y.right) (H.map Q.right)).inv), 
-    pentagon_inv_inv_hom_hom_inv, assoc, 
-    ←assoc ((α_ (X.hom ≫ G.map P.right) (G.map Q.right) (η.app Z.right)).inv), 
-    ←associator_inv_naturality_left, assoc, 
-    ←assoc ((X.hom ≫ G.map P.right) ◁ η.naturality Q.right), whisker_exchange]
+  rw [←assoc (_ ◁ _ ◁ η.naturality _), associator_inv_naturality_right, assoc,
+    ←assoc (_ ▷ _ ▷ H.map _), associator_naturality_left P.f, assoc,
+    ←assoc (α_ _ (_ ≫ η.app _) _).inv, ←assoc (_ ≫ _ ▷ _), assoc (α_ _ _ _).inv,
+    pentagon_inv_inv_hom_hom_inv, assoc, ←assoc (α_ (_ ≫ _) _ _).inv,
+    ←associator_inv_naturality_left, assoc, ←assoc (_ ◁ η.naturality _), whisker_exchange]
   simp
 
 @[simps]
@@ -639,12 +590,10 @@ def toLax₂ {F G : A ⥤ᵖ B} (η : Pseudofunctor.StrongTrans F G) :
   app := _
   naturality _ := (η.naturality _).symm
   naturality_naturality _ := by simp [←Iso.cancel_iso_hom_right _ _ (η.naturality _)]
-  naturality_id _ := by simp [←Iso.cancel_iso_hom_left (whiskerLeftIso (η.app _) (G.mapId _)) _ _, 
-    ←Iso.cancel_iso_hom_left (η.naturality _) _ _]
-  naturality_comp _ _ := by simp 
-                              [←Iso.cancel_iso_hom_right _ _ (whiskerLeftIso (η.app _) 
-                              (G.mapComp _ _)), 
-                              ←Iso.cancel_iso_hom_right _ _ (η.naturality _)]
+  naturality_id _ := by simp [←Iso.cancel_iso_hom_left (whiskerLeftIso (η.app _) (G.mapId _)) _ _,
+                          ←Iso.cancel_iso_hom_left (η.naturality _) _ _]
+  naturality_comp _ _ := by simp [←Iso.cancel_iso_hom_right _ _ (whiskerLeftIso (η.app _)
+                              (G.mapComp _ _)), ←Iso.cancel_iso_hom_right _ _ (η.naturality _)]
 
 /-- The change-of-slice strict pseudofunctor. -/
 @[simp]
@@ -653,7 +602,7 @@ def mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) :
   mapRight (toLax (const.homStrongTrans f).toOplax)
 
 /-- The change-of-coslice strict pseudofunctor. -/
-@[simps!]
+@[simp]
 def mapLeftCoslice {x y : T} (G : B ⥤ᵒᵖᴸ T) (f : y ⟶ x) :
     StrictPseudofunctor (LaxCoslice G x) (LaxCoslice G y) := 
   mapLeft (toLax₂ (const.homStrongTrans f)).toLax
@@ -683,7 +632,7 @@ def projRightCore (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctorC
 on objects by `(a, b, φ) ↦ b`;
 on 1-cells by `(p, q, θ) ↦ q`;
 on 2-cells by `(α, β) ↦ β`. -/
-@[simps!]
+@[simp]
 def projRight (F : A ⥤ᴸ T) (G : B ⥤ᵒᵖᴸ T) : StrictPseudofunctor (Comma F G) B := 
   StrictPseudofunctor.mk' (projRightCore F G)
 
@@ -715,51 +664,36 @@ def laxProjArrow (F : A ⥤ᴸ T) (G : B ⥤ᵖ T) : Comma F G.toOplax ⥤ᴸ Ar
   mapComp _ _ := {
     left := _
     right := (G.mapComp _ _).inv }
-  mapComp_naturality_left _ _ := by simp only [Arrow, inst, instCategoryHom,
-                                      Pseudofunctor.toOplax_toPrelaxFunctor, comp_def, comp₁_left,
-                                      comp₁_right, comp₁_f, Pseudofunctor.toOplax_mapComp,
-                                      whiskerRight_left, whiskerRight_right,
-                                      Pseudofunctor.map₂_whisker_right]
+  mapComp_naturality_left _ _ := by simp only [Arrow, inst, instCategoryHom]
                                     ext <;> simp
-  mapComp_naturality_right _ _ _ _ := by simp only [Arrow, inst, instCategoryHom,
-                                           Pseudofunctor.toOplax_toPrelaxFunctor, comp_def,
-                                           comp₁_left, comp₁_right, comp₁_f,
-                                           Pseudofunctor.toOplax_mapComp, whiskerLeft_left,
-                                           whiskerLeft_right, Pseudofunctor.map₂_whisker_left]
+  mapComp_naturality_right _ _ _ _ := by simp only [Arrow, inst, instCategoryHom]
                                          ext <;> simp
-  map₂_associator _ _ _ := by simp only [Arrow, inst, instCategoryHom,
-                                Pseudofunctor.toOplax_toPrelaxFunctor, comp_def, comp₁_left,
-                                comp₁_right, comp₁_f, Pseudofunctor.toOplax_mapComp, associator_hom,
-                                associatorHom_left, associatorHom_right,
-                                Pseudofunctor.map₂_associator]
+  map₂_associator _ _ _ := by simp only [Arrow, inst, instCategoryHom]
                               ext <;> simp
-  map₂_leftUnitor P := by simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left,
-                            id₁_left, comp₁_right, id₁_right, comp₁_f, 
-                            Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp,
-                            id₁_f, Pseudofunctor.toOplax_mapId, leftUnitor_inv, leftUnitorInv_left, 
-                            LaxFunctor.map₂_leftUnitor, leftUnitorInv_right]
-                          ext <;> simp only [comp₂_left, comp₁_left, id₁_left, 
-                            leftUnitorInv_left, whiskerRight_left, comp₂_right, comp₁_right,
-                            id₁_right, leftUnitorInv_right, whiskerRight_right]
-                          apply (cancel_mono (G.map₂ (λ_ _).hom)).mp
-                          simp only [Pseudofunctor.map₂_left_unitor, assoc, Iso.inv_hom_id_assoc, 
-                            inv_hom_whiskerRight_assoc, Iso.inv_hom_id]
-                          rw [←G.map₂_left_unitor _, ←G.map₂_comp]
-                          simp
-  map₂_rightUnitor P := by simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left, 
-                              id₁_left, comp₁_right, id₁_right, comp₁_f, 
-                              Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp, 
-                              id₁_f, Pseudofunctor.toOplax_mapId, rightUnitor_inv,  
-                              rightUnitorInv_left, LaxFunctor.map₂_rightUnitor, 
-                              rightUnitorInv_right]
-                           ext <;> simp only [comp₂_left, comp₁_left, id₁_left, 
-                             rightUnitorInv_left, whiskerLeft_left, comp₂_right, comp₁_right,
-                             id₁_right, rightUnitorInv_right, whiskerLeft_right]
-                           apply (cancel_mono (G.map₂ (ρ_ _).hom)).mp
-                           simp only [Pseudofunctor.map₂_right_unitor, assoc, Iso.inv_hom_id_assoc, 
-                             whiskerLeft_inv_hom_assoc, Iso.inv_hom_id]
-                           rw [←G.map₂_right_unitor _, ←G.map₂_comp]
-                           simp
+  map₂_leftUnitor P := by
+    simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left, id₁_left, comp₁_right,
+      id₁_right, comp₁_f, Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp,
+      id₁_f, Pseudofunctor.toOplax_mapId, leftUnitor_inv, leftUnitorInv_left,
+      LaxFunctor.map₂_leftUnitor, leftUnitorInv_right]
+    ext <;> simp only [comp₂_left, comp₁_left, id₁_left, leftUnitorInv_left, whiskerRight_left,
+      comp₂_right, comp₁_right, id₁_right, leftUnitorInv_right, whiskerRight_right]
+    apply (cancel_mono (G.map₂ (λ_ _).hom)).mp
+    simp only [Pseudofunctor.map₂_left_unitor, assoc, Iso.inv_hom_id_assoc,
+      inv_hom_whiskerRight_assoc, Iso.inv_hom_id]
+    rw [←G.map₂_left_unitor _, ←G.map₂_comp]
+    simp
+  map₂_rightUnitor P := by
+    simp only [Arrow, inst, instCategoryHom, id_def, comp_def, comp₁_left, id₁_left, comp₁_right,
+      id₁_right, comp₁_f, Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.toOplax_mapComp,
+      id₁_f, Pseudofunctor.toOplax_mapId, rightUnitor_inv, rightUnitorInv_left,
+      LaxFunctor.map₂_rightUnitor, rightUnitorInv_right]
+    ext <;> simp only [comp₂_left, comp₁_left, id₁_left, rightUnitorInv_left, whiskerLeft_left,
+      comp₂_right, comp₁_right, id₁_right, rightUnitorInv_right, whiskerLeft_right]
+    apply (cancel_mono (G.map₂ (ρ_ _).hom)).mp
+    simp only [Pseudofunctor.map₂_right_unitor, assoc, Iso.inv_hom_id_assoc,
+      whiskerLeft_inv_hom_assoc, Iso.inv_hom_id]
+    rw [←G.map₂_right_unitor _, ←G.map₂_comp]
+    simp
 
 /-- The arrow projection oplax functor, for `F` a pseudofunctor. -/
 @[simps]
@@ -782,38 +716,11 @@ def oplaxProjArrow (F : A ⥤ᵖ T) (G : B ⥤ᵒᵖᴸ T) : Comma F.toLax G ⥤
   mapComp _ _ := {
     left := (F.mapComp _ _).hom
     right := _ }
-  mapComp_naturality_left _ _ := by simp only [Arrow, inst, instCategoryHom,
-                                      Pseudofunctor.toLax_toPrelaxFunctor, comp_def, comp₁_left,
-                                      comp₁_right, comp₁_f, Pseudofunctor.toLax_mapComp,
-                                      whiskerRight_left, Pseudofunctor.map₂_whisker_right,
-                                      whiskerRight_right]
-                                    ext <;> simp
-  mapComp_naturality_right _ _ _ _ := by simp only [Arrow, inst, instCategoryHom,
-                                           Pseudofunctor.toLax_toPrelaxFunctor, comp_def,
-                                           comp₁_left, comp₁_right, comp₁_f,
-                                           Pseudofunctor.toLax_mapComp, whiskerLeft_left,
-                                           Pseudofunctor.map₂_whisker_left, whiskerLeft_right]
-                                         ext <;> simp
-  map₂_associator _ _ _ := by simp only [Arrow, inst, instCategoryHom,
-                                Pseudofunctor.toLax_toPrelaxFunctor, comp_def, comp₁_left,
-                                comp₁_right, comp₁_f, Pseudofunctor.toLax_mapComp, associator_hom,
-                                associatorHom_left, Pseudofunctor.map₂_associator,
-                                associatorHom_right]
-                              ext <;> simp
-  map₂_leftUnitor _ := by simp only [Arrow, inst, instCategoryHom,
-                            Pseudofunctor.toLax_toPrelaxFunctor, id_def, comp_def, comp₁_left,
-                            id₁_left, comp₁_right, id₁_right, comp₁_f, id₁_f,
-                            Pseudofunctor.toLax_mapId, Pseudofunctor.toLax_mapComp, leftUnitor_hom,
-                            leftUnitorHom_left, Pseudofunctor.map₂_left_unitor, leftUnitorHom_right,
-                            OplaxFunctor.map₂_leftUnitor]
-                          ext <;> simp
-  map₂_rightUnitor _ := by simp only [Arrow, inst, instCategoryHom,
-                             Pseudofunctor.toLax_toPrelaxFunctor, id_def, comp_def, comp₁_left,
-                             id₁_left, comp₁_right, id₁_right, comp₁_f, id₁_f,
-                             Pseudofunctor.toLax_mapId, Pseudofunctor.toLax_mapComp,
-                             rightUnitor_hom, rightUnitorHom_left, Pseudofunctor.map₂_right_unitor,
-                             rightUnitorHom_right, OplaxFunctor.map₂_rightUnitor]
-                           ext <;> simp
+  mapComp_naturality_left _ _ := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+  mapComp_naturality_right _ _ _ _ := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+  map₂_associator _ _ _ := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+  map₂_leftUnitor _ := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+  map₂_rightUnitor _ := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
 
 @[simps]
 def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : 
@@ -825,10 +732,8 @@ def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) :
     inv := {
       left := _ 
       right := (G.mapId _).inv } 
-    hom_inv_id := by simp only [Arrow, inst, instCategoryHom, id_def]
-                     ext <;> simp
-    inv_hom_id := by simp only [Arrow, inst, instCategoryHom, id_def]
-                     ext <;> simp }
+    hom_inv_id := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+    inv_hom_id := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp }
   mapCompIso _ _ := {
     hom := {
       left := (F.mapComp _ _).hom
@@ -836,21 +741,16 @@ def projArrowCore (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) :
     inv := {
       left := _
       right := (G.mapComp _ _).inv } 
-    hom_inv_id := by simp only [Arrow, inst, instCategoryHom, comp_def]
-                     ext <;> simp
-    inv_hom_id := by simp only [Arrow, inst, instCategoryHom, comp_def]
-                     ext <;> simp }
-  mapIdIso_hom := by intro _
-                     simp only [Arrow, inst, instCategoryHom, id_def]
-                     ext <;> simp
-  mapCompIso_hom _ _ := by simp only [Arrow, inst, instCategoryHom, comp_def]
-                           ext <;> simp
+    hom_inv_id := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+    inv_hom_id := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp }
+  mapIdIso_hom := by intro _; simp only [Arrow, inst, instCategoryHom]; ext <;> simp
+  mapCompIso_hom _ _ := by simp only [Arrow, inst, instCategoryHom]; ext <;> simp
 
 /-- When `F` and `G` are both pseudofunctors, then the arrow projection is a pseudofunctor. Given
 on objects by `(a, b, φ) ↦ (Fa, Gb, φ)`;
 on 1-cells by `(p, q, θ) ↦ (Fp, Gq, θ)`;
 on 2-cells by `(α, β) ↦ (Fα, Gβ)`. -/
-@[simps!]
+@[simp]
 def projArrow (F : A ⥤ᵖ T) (G : B ⥤ᵖ T) : Comma F.toLax G.toOplax ⥤ᵖ Arrow T := 
   Pseudofunctor.mkOfOplax (oplaxProjArrow F G.toOplax) (projArrowCore F G)
 
@@ -872,163 +772,113 @@ def lift {X : Type*} [Bicategory.{w, v} X] {F : A ⥤ᵖ T} {G : B ⥤ᵖ T} {L 
   map₂ θ := {
     left := L.map₂ θ
     right := R.map₂ θ
-    icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
-                Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, 
-                PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map]
-              apply (cancel_epi (η.naturality _).hom).mp
-              simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id_assoc]
-              have := η.naturality_naturality θ
-              simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                Prefunctor.comp_obj, Prefunctor.comp_map, PrelaxFunctorStruct.comp_map₂] at this
-              simp [←assoc (η.naturality _).hom, ←this] }
+    icc := by
+      simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
+        Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, 
+        PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map]
+      apply (cancel_epi (η.naturality _).hom).mp
+      simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+        PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+        Iso.hom_inv_id_assoc]
+      have := η.naturality_naturality θ
+      simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+        PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+        PrelaxFunctorStruct.comp_map₂] at this
+      simp [←assoc (η.naturality _).hom, ←this] }
   mapId x := {
     hom := {
       left := (L.mapId x).hom
       right := (R.mapId x).hom
-      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
-                  Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.comp_toPrelaxFunctor,
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, inst, instCategoryHom, id_def, 
-                  id₁_left, id₁_right, id₁_f, Pseudofunctor.toOplax_mapId, 
-                  Pseudofunctor.toLax_mapId]
-                apply (cancel_epi (η.naturality _).hom).mp
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id_assoc]
-                have := η.naturality_id x
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapId, 
-                  Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
-                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
-                rw [←assoc (η.naturality _).hom,  ←assoc ((η.naturality _).hom ≫ _), 
-                  assoc (η.naturality _).hom, this]
-                simp }
+      icc := by
+        simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
+          Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, inst,
+          instCategoryHom, id_def, id₁_left, id₁_right, id₁_f, Pseudofunctor.toOplax_mapId, 
+          Pseudofunctor.toLax_mapId]
+        apply (cancel_epi (η.naturality _).hom).mp
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          Iso.hom_inv_id_assoc]
+        have := η.naturality_id x
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          Pseudofunctor.comp_mapId, Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map,
+          whiskerLeft_comp, comp_whiskerRight, assoc] at this
+        rw [←assoc (η.naturality _).hom,  ←assoc (_ ≫ _), assoc (η.naturality _).hom, this]
+        simp }
     inv := {
       left := (L.mapId x).inv
       right := (R.mapId x).inv
-      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
-                  Pseudofunctor.toOplax_toPrelaxFunctor, inst, instCategoryHom, id_def, id₁_right, 
-                  Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                  PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, 
-                  id₁_left, id₁_f, Pseudofunctor.toOplax_mapId, Pseudofunctor.toLax_mapId, assoc]
-                apply (cancel_epi (_ ◁ G.map₂ (R.mapId _).hom)).mp
-                nth_rw 2 [←assoc (_ ◁ G.map₂ (R.mapId _).hom)] 
-                simp only [PrelaxFunctor.map₂_hom_inv, whiskerLeft_id, id_comp, ←whiskerLeft_comp]
-                apply (cancel_epi (η.naturality _).hom).mp
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, Iso.hom_inv_id]
-                have := η.naturality_id x
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapId, 
-                  Iso.trans_hom,  Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
-                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
-                rw [←assoc (η.naturality _).hom, 
-                  ←assoc ((η.naturality _).hom ≫ _ ◁ G.map₂ (R.mapId _).hom), 
-                  assoc (η.naturality _).hom, this]
-                simp [←comp_whiskerRight] } 
-    hom_inv_id := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                       Prefunctor.comp_map, id_def]
-                     ext <;> simp
-    inv_hom_id := by simp only [inst, instCategoryHom, id_def, Pseudofunctor.comp_toPrelaxFunctor,
-                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                       Prefunctor.comp_map]
-                     ext <;> simp }
+      icc := by
+        simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor, inst,
+          instCategoryHom, id_def, id₁_right, Pseudofunctor.comp_toPrelaxFunctor,
+            PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+            Prefunctor.comp_obj, Prefunctor.comp_map, id₁_left, id₁_f, Pseudofunctor.toOplax_mapId,
+            Pseudofunctor.toLax_mapId, assoc]
+        apply (cancel_epi (_ ◁ G.map₂ (R.mapId _).hom)).mp
+        nth_rw 2 [←assoc (_ ◁ G.map₂ (R.mapId _).hom)] 
+        simp only [PrelaxFunctor.map₂_hom_inv, whiskerLeft_id, id_comp, ←whiskerLeft_comp]
+        apply (cancel_epi (η.naturality _).hom).mp
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          Iso.hom_inv_id]
+        have := η.naturality_id x
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          Pseudofunctor.comp_mapId, Iso.trans_hom,  Functor.mapIso_hom,
+          PrelaxFunctor.mapFunctor_map, whiskerLeft_comp, comp_whiskerRight, assoc] at this
+        rw [←assoc (η.naturality _).hom, ←assoc (_ ≫ _ ◁ _), assoc (η.naturality _).hom, this]
+        simp [←comp_whiskerRight] } 
+    hom_inv_id := by simp only [inst, instCategoryHom]; ext <;> simp
+    inv_hom_id := by simp only [inst, instCategoryHom]; ext <;> simp }
   mapComp f g := {
     hom := {
       left := (L.mapComp f g).hom
       right := (R.mapComp f g).hom
-      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
-                  Pseudofunctor.toOplax_toPrelaxFunctor, Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
-                  Prefunctor.comp_obj, Prefunctor.comp_map, inst, instCategoryHom, comp_def,
-                  comp₁_left, comp₁_right, comp₁_f, Pseudofunctor.toOplax_mapComp,
-                  Pseudofunctor.toLax_mapComp]
-                have := η.naturality_comp f g
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapComp, 
-                  Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
-                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
-                apply (cancel_epi (η.naturality _).hom).mp
-                nth_rw 2 [←assoc ((η.naturality _).hom)]
-                rw [←assoc (((η.naturality _).hom ≫ _ ◁ G.map₂ (R.mapComp _ _).hom)), 
-                  assoc (η.naturality _).hom, this]
-                simp }
+      icc := by
+        simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor,
+          Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, inst,
+          instCategoryHom, comp_def, comp₁_left, comp₁_right, comp₁_f,
+          Pseudofunctor.toOplax_mapComp, Pseudofunctor.toLax_mapComp]
+        have := η.naturality_comp f g
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          Pseudofunctor.comp_mapComp, Iso.trans_hom, Functor.mapIso_hom,
+          PrelaxFunctor.mapFunctor_map, whiskerLeft_comp, comp_whiskerRight, assoc] at this
+        apply (cancel_epi (η.naturality _).hom).mp
+        nth_rw 2 [←assoc ((η.naturality _).hom)]
+        rw [←assoc (_ ≫ _ ◁ _), assoc (η.naturality _).hom, this]
+        simp }
     inv := {
       left := (L.mapComp f g).inv
       right := (R.mapComp f g).inv
-      icc := by simp only [Pseudofunctor.toLax_toPrelaxFunctor, 
-                  Pseudofunctor.toOplax_toPrelaxFunctor, inst, instCategoryHom, 
-                  Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct, 
-                  PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map, 
-                  comp_def, comp₁_right, comp₁_left, comp₁_f, Pseudofunctor.toOplax_mapComp,
-                  Pseudofunctor.toLax_mapComp, assoc]
-                apply (cancel_epi (_◁ G.map₂ (R.mapComp _ _).hom)).mp
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, ←assoc (η.app _ ◁ G.map₂ (R.mapComp _ _).hom), 
-                  ←whiskerLeft_comp, PrelaxFunctor.map₂_hom_inv, whiskerLeft_id, id_comp]
-                have := η.naturality_comp f g
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, Pseudofunctor.comp_mapComp, 
-                  Iso.trans_hom, Functor.mapIso_hom, PrelaxFunctor.mapFunctor_map, 
-                  whiskerLeft_comp, comp_whiskerRight, assoc] at this
-                apply (cancel_epi (η.naturality _).hom).mp
-                simp only [Pseudofunctor.comp_toPrelaxFunctor, 
-                  PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor, 
-                  Prefunctor.comp_obj, Prefunctor.comp_map, whiskerLeft_comp, assoc, Iso.hom_inv_id]
-                rw [←assoc (η.naturality _).hom, 
-                  ←assoc ((η.naturality _).hom ≫ _◁ G.map₂ (R.mapComp _ _).hom), 
-                  assoc (η.naturality _).hom, this]
-                simp [←comp_whiskerRight] } 
-    hom_inv_id := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                       Prefunctor.comp_map, comp_def] 
-                     ext <;> simp
-    inv_hom_id := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                       PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                       PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                       Prefunctor.comp_map, comp_def]
-                     ext <;> simp }
-  map₂_whisker_left _ _ _ _ := by simp only [inst, instCategoryHom,
-                                    Pseudofunctor.comp_toPrelaxFunctor,
-                                    PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                                    PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                                    Prefunctor.comp_map, Pseudofunctor.map₂_whisker_left, comp_def] 
-                                  ext <;> simp
-  map₂_whisker_right _ _ := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                                 PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                                 PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                                 Prefunctor.comp_map, Pseudofunctor.map₂_whisker_right, comp_def]
-                               ext <;> simp
-  map₂_associator _ _ _:= by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                               PrelaxFunctor.comp_toPrelaxFunctorStruct, 
-                               PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                               Prefunctor.comp_map, Pseudofunctor.map₂_associator, comp_def,
-                               associator_hom]
-                             ext <;> simp
-  map₂_left_unitor _ := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                             PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                             PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                             Prefunctor.comp_map, Pseudofunctor.map₂_left_unitor, comp_def, id_def,
-                             leftUnitor_hom]
-                           ext <;> simp
-  map₂_right_unitor _ := by simp only [inst, instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
-                              PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                              PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                              Prefunctor.comp_map, Pseudofunctor.map₂_right_unitor, comp_def,
-                              id_def, rightUnitor_hom]
-                            ext <;> simp
+      icc := by
+        simp only [Pseudofunctor.toLax_toPrelaxFunctor, Pseudofunctor.toOplax_toPrelaxFunctor, inst,
+          instCategoryHom, Pseudofunctor.comp_toPrelaxFunctor,
+          PrelaxFunctor.comp_toPrelaxFunctorStruct, PrelaxFunctorStruct.comp_toPrefunctor,
+          Prefunctor.comp_obj, Prefunctor.comp_map, comp_def, comp₁_right, comp₁_left, comp₁_f,
+          Pseudofunctor.toOplax_mapComp, Pseudofunctor.toLax_mapComp, assoc]
+        apply (cancel_epi (_◁ G.map₂ (R.mapComp _ _).hom)).mp
+        simp only [←assoc (_ ◁ _), ←whiskerLeft_comp, PrelaxFunctor.map₂_hom_inv, whiskerLeft_id,
+          id_comp]
+        have := η.naturality_comp f g
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          Pseudofunctor.comp_mapComp, Iso.trans_hom, Functor.mapIso_hom,
+          PrelaxFunctor.mapFunctor_map, whiskerLeft_comp, comp_whiskerRight, assoc] at this
+        apply (cancel_epi (η.naturality _).hom).mp
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          whiskerLeft_comp, assoc, Iso.hom_inv_id]
+        rw [←assoc (η.naturality _).hom, ←assoc (_ ≫ _◁ _), assoc (η.naturality _).hom, this]
+        simp [←comp_whiskerRight] } 
+    hom_inv_id := by simp only [inst, instCategoryHom]; ext <;> simp
+    inv_hom_id := by simp only [inst, instCategoryHom]; ext <;> simp }
+  map₂_whisker_left _ _ _ _ := by simp only [inst, instCategoryHom]; ext <;> simp
+  map₂_whisker_right _ _ := by simp only [inst, instCategoryHom]; ext <;> simp
+  map₂_associator _ _ _:= by simp only [inst, instCategoryHom]; ext <;> simp
+  map₂_left_unitor _ := by simp only [inst, instCategoryHom]; ext <;> simp
+  map₂_right_unitor _ := by simp only [inst, instCategoryHom]; ext <;> simp
 
 end Comma

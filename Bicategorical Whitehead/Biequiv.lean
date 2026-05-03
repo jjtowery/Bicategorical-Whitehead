@@ -40,19 +40,20 @@ def Equivalence.symm {a b : B} (e : a ≌ b) : b ≌ a :=
 /-- Transitivity of equivalence. Should go to existing API. -/
 def Equivalence.trans {a b c : B} (e₁ : a ≌ b) (e₂ : b ≌ c) : a ≌ c := 
   Equivalence.mkOfAdjointifyCounit (e₁.unit ≪≫ whiskerRightIso (ρ_ _).symm _ ≪≫ whiskerRightIso
-    (whiskerLeftIso _ e₂.unit) _ ≪≫ whiskerRightIso (α_ _ _ _).symm _ ≪≫ α_ _ _ _)
-    (α_ _ _ _ ≪≫ whiskerLeftIso _ (α_ _ _ _).symm ≪≫ (α_ _ _ _).symm ≪≫ whiskerRightIso
-    (whiskerLeftIso _ e₁.counit) _ ≪≫ α_ _ _ _ ≪≫ whiskerLeftIso _ (λ_ _) ≪≫ e₂.counit)
+  (whiskerLeftIso _ e₂.unit) _ ≪≫ whiskerRightIso (α_ _ _ _).symm _ ≪≫ α_ _ _ _)
+  (α_ _ _ _ ≪≫ whiskerLeftIso _ (α_ _ _ _).symm ≪≫ (α_ _ _ _).symm ≪≫ whiskerRightIso
+  (whiskerLeftIso _ e₁.counit) _ ≪≫ α_ _ _ _ ≪≫ whiskerLeftIso _ (λ_ _) ≪≫ e₂.counit)
 
 namespace Biequivalence
 
+@[simp]
 def leftZigzag {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) :=
   postWhisker η.hom F ≫ associatorHom F G F ≫ preWhisker F ε.hom
 
 end Biequivalence
 
-/-- Biequivalence defined as half-biadjoint biequivalence. 
+/-- Biequivalence defined as a half-biadjoint biequivalence. 
 A pseudofunctor `F : B ⥤ᵖ C` is a biequivalence if there is a pseudofunctor `G : C ⥤ᵖ B`
 with internal equivalences `𝟙 B ≌ GF` and `FG ≌ 𝟙 C` in their respective pseudofunctor bicategories.
 
@@ -88,14 +89,17 @@ theorem leftZigzagIso_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.
 def rightZigzagIso {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) := (G ◁ₚ η).trans (((αₚ_ G F G).symm).trans (ε ▷ₚ G))
 
+@[simp]
 def leftZigzagIso_symm_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
     (ε : G.comp F ≌ Pseudofunctor.id C) : (rightZigzagIso ε.symm η.symm).hom ≅
     (leftZigzagIso η ε).inv := (α_ _ _ _).symm
 
 /- Move these to Bicat.lean later. -/
+@[simp]
 def whiskerLeft_trans_hom (H : B ⥤ᵖ C) {F G K : C ⥤ᵖ D} (e₁ : F ≌ G) (e₂ : G ≌ K) :
     (H ◁ₚ (e₁.trans e₂)).hom ≅ (H ◁ₚ e₁).hom ≫ (H ◁ₚ e₂).hom := eqToIso rfl
 
+@[simp]
 def associator_naturality_right_hom (F : B ⥤ᵖ C) (G : C ⥤ᵖ D) {H K : D ⥤ᵖ E} (χ : H ≌ K) :
     (αₚ_ F G H).hom ≫ (F ◁ₚ (G ◁ₚ χ)).hom ≅ ((F.comp G) ◁ₚ χ).hom ≫ (αₚ_ F G K).hom where
   hom := {
@@ -112,62 +116,48 @@ def whisker_exchange_hom_hom {F G : B ⥤ᵖ C} {H K : C ⥤ᵖ D} (η : F ≌ G
     (η ▷ₚ H).hom ≫ (G ◁ₚ χ).hom ⟶ (F ◁ₚ χ).hom ≫ (η ▷ₚ K).hom where
   as := {
     app _ := (χ.hom.naturality (η.hom.app _)).hom
-    naturality f := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
-                         PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                         PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                         Prefunctor.comp_map, whiskerRight_hom, whiskerLeft_hom,
-                         Pseudofunctor.StrongTrans.comp_app, postWhisker_app, preWhisker_app,
-                         Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom,
-                         preWhisker_naturality, postWhisker_naturality_hom, whiskerLeft_comp,
-                         assoc, comp_whiskerRight]
-                       have := congrArg (fun f => f ≫ (α_ _ _ _).inv)
-                         (χ.hom.naturality_comp (η.hom.app _) (G.map f))
-                       simp only [Iso.hom_inv_id, assoc, comp_id] at this
-                       rw [←this, ←assoc (H.map₂ _ ▷ _),
-                         χ.hom.naturality_naturality (η.hom.naturality _).hom, assoc]
-                       have := congrArg (fun g => (α_ _ _ _).inv ≫ (H.mapComp _ _).inv ▷ _ ≫
-                         g ≫ _ ◁ (K.mapComp _ _).inv ≫ _ ◁ K.map₂ (η.hom.naturality _).hom ≫
-                         _ ◁ (K.mapComp _ _).hom ≫ (α_ _ _ _).inv) (χ.hom.naturality_comp
-                         (F.map f) (η.hom.app _))
-                       simp only [assoc, inv_hom_whiskerRight_assoc, Iso.inv_hom_id_assoc] at this
-                       rw [←assoc (χ.hom.app _ ◁  _), whiskerLeft_hom_inv, id_comp] at this
-                       rw [this] }
+    naturality f := by
+      simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+      PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+      whiskerRight_hom, whiskerLeft_hom, Pseudofunctor.StrongTrans.comp_app, postWhisker_app,
+      preWhisker_app, Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom,
+      preWhisker_naturality, postWhisker_naturality_hom, whiskerLeft_comp, assoc, comp_whiskerRight]
+      have := congrArg (fun f => f ≫ (α_ _ _ _).inv) (χ.hom.naturality_comp (η.hom.app _) (G.map f))
+      simp only [Iso.hom_inv_id, assoc, comp_id] at this
+      rw [←this, ←assoc (H.map₂ _ ▷ _), χ.hom.naturality_naturality (η.hom.naturality _).hom, assoc]
+      have := congrArg (fun g => (α_ _ _ _).inv ≫ (H.mapComp _ _).inv ▷ _ ≫ g ≫
+        _ ◁ (K.mapComp _ _).inv ≫ _ ◁ K.map₂ (η.hom.naturality _).hom ≫ _ ◁ (K.mapComp _ _).hom ≫
+        (α_ _ _ _).inv) (χ.hom.naturality_comp (F.map f) (η.hom.app _))
+      simp only [assoc, inv_hom_whiskerRight_assoc, Iso.inv_hom_id_assoc] at this
+      rw [←assoc (χ.hom.app _ ◁  _), whiskerLeft_hom_inv, id_comp] at this
+      rw [this] }
 
+@[simp]
 def whisker_exchange_hom {F G : B ⥤ᵖ C} {H K : C ⥤ᵖ D} (η : F ≌ G) (χ : H ≌ K) :
     (η ▷ₚ H).hom ≫ (G ◁ₚ χ).hom ≅ (F ◁ₚ χ).hom ≫ (η ▷ₚ K).hom where
   hom := whisker_exchange_hom_hom η χ
   inv := {
     as := {
       app _ := (χ.hom.naturality (η.hom.app _)).inv
-      naturality {a b} f := by simp only [Pseudofunctor.comp_toPrelaxFunctor,
-                                 PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                                 PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                                 Prefunctor.comp_map, whiskerLeft_hom, whiskerRight_hom,
-                                 Pseudofunctor.StrongTrans.comp_app, preWhisker_app,
-                                 postWhisker_app,
-                                 Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom,
-                                 postWhisker_naturality_hom, comp_whiskerRight,
-                                 preWhisker_naturality, assoc, whiskerLeft_comp]
-                               have h := congrArg (fun g => _ ◁ (χ.hom.naturality _).inv ≫ g ≫
-                                 (χ.hom.naturality _).inv ▷ K.map _)
-                                 ((whisker_exchange_hom_hom η χ).as.naturality f)
-                               have : (whisker_exchange_hom_hom η χ).as.app a =
-                                 (χ.hom.naturality _).hom := rfl
-                               simp only [Pseudofunctor.comp_toPrelaxFunctor,
-                                 PrelaxFunctor.comp_toPrelaxFunctorStruct,
-                                 PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj,
-                                 Prefunctor.comp_map, whiskerRight_hom, whiskerLeft_hom,
-                                 Pseudofunctor.StrongTrans.comp_app, postWhisker_app,
-                                 preWhisker_app,
-                                 Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom,
-                                 preWhisker_naturality, postWhisker_naturality_hom,
-                                 whiskerLeft_comp, assoc, comp_whiskerRight, this,
-                                 hom_inv_whiskerRight, comp_id] at h
-                               have : (whisker_exchange_hom_hom η χ).as.app b =
-                                 (χ.hom.naturality _).hom := rfl
-                               rw [←h, ←assoc (_ ◁ (χ.hom.naturality _).inv),
-                                 ←whiskerLeft_comp, this]
-                               simp } }
+      naturality {a b} f := by
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          whiskerLeft_hom, whiskerRight_hom, Pseudofunctor.StrongTrans.comp_app, preWhisker_app,
+          postWhisker_app, Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom,
+          postWhisker_naturality_hom, comp_whiskerRight, preWhisker_naturality, assoc,
+          whiskerLeft_comp]
+        have h := congrArg (fun g => _ ◁ (χ.hom.naturality _).inv ≫ g ≫
+          (χ.hom.naturality _).inv ▷ K.map _) ((whisker_exchange_hom_hom η χ).as.naturality f)
+        have : (whisker_exchange_hom_hom η χ).as.app a = (χ.hom.naturality _).hom := rfl
+        simp only [Pseudofunctor.comp_toPrelaxFunctor, PrelaxFunctor.comp_toPrelaxFunctorStruct,
+          PrelaxFunctorStruct.comp_toPrefunctor, Prefunctor.comp_obj, Prefunctor.comp_map,
+          whiskerRight_hom, whiskerLeft_hom, Pseudofunctor.StrongTrans.comp_app, postWhisker_app,
+          preWhisker_app, Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom,
+          preWhisker_naturality, postWhisker_naturality_hom, whiskerLeft_comp, assoc,
+          comp_whiskerRight, this, hom_inv_whiskerRight, comp_id] at h
+        have : (whisker_exchange_hom_hom η χ).as.app b = (χ.hom.naturality _).hom := rfl
+        rw [←h, ←assoc (_ ◁ (χ.hom.naturality _).inv), ←whiskerLeft_comp, this]
+        simp } }
   hom_inv_id := by ext; simp 
   inv_hom_id := by ext; simp
 
@@ -178,6 +168,7 @@ theorem leftUnitor_hom_app (F : B ⥤ᵖ C) (a : B) : (λₚ_ F).hom.app a = �
 theorem leftUnitor_hom_naturality_hom (F : B ⥤ᵖ C) {a b : B} (f : a ⟶ b) :
     ((λₚ_ F).hom.naturality f).hom = (ρ_ (F.map f)).hom ≫ (λ_ (F.map f)).inv := rfl
 
+@[simp]
 def leftUnitor_naturality_hom {F : B ⥤ᵖ C} (χ : F ≌ F) :
     (Pseudofunctor.id B ◁ₚ χ).hom ≫ (λₚ_ F).hom ≅ (λₚ_ F).hom ≫ χ.hom where
   hom := {
@@ -189,28 +180,30 @@ def leftUnitor_naturality_hom {F : B ⥤ᵖ C} (χ : F ≌ F) :
   hom_inv_id := by ext; simp
   inv_hom_id := by ext; simp
 
-def leftUnitor_conj_hom {F : B ⥤ᵖ C} (χ : F ≌ F) : (Pseudofunctor.id B ◁ₚ χ).hom ≅
-    (((λₚ_ F).hom ≫ χ.hom) ≫ (λₚ_ F).inv) := (ρ_ (Pseudofunctor.id B ◁ₚ χ).hom).symm ≪≫
-  whiskerLeftIso _ (λₚ_ F).unit ≪≫ (α_ _ _ _).symm ≪≫
+@[simp]
+def leftUnitor_conj_hom {F : B ⥤ᵖ C} (χ : F ≌ F) :
+    (Pseudofunctor.id B ◁ₚ χ).hom ≅ (((λₚ_ F).hom ≫ χ.hom) ≫ (λₚ_ F).inv) :=
+  (ρ_ (Pseudofunctor.id B ◁ₚ χ).hom).symm ≪≫ whiskerLeftIso _ (λₚ_ F).unit ≪≫ (α_ _ _ _).symm ≪≫
   whiskerRightIso (leftUnitor_naturality_hom χ) _
 
 def leftZigzagIso_whiskerLeft_trans_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B}
     (η : Pseudofunctor.id B ≌ F.comp G) (ε : G.comp F ≌ Pseudofunctor.id C) (χ : F ≌ F) :
-    (leftZigzagIso η ((G ◁ₚ χ).trans ε)).hom ≅ (((λₚ_ F).hom ≫ χ.hom) ≫ (λₚ_ F).inv) ≫
-    (leftZigzagIso η ε).hom := eqToIso (by simp [leftZigzag]) ≪≫ whiskerLeftIso _
-  (whiskerLeftIso _ (whiskerLeft_trans_hom _ _ _)) ≪≫ whiskerLeftIso _ ((α_ _ _ _).symm ≪≫
-  whiskerRightIso (associator_naturality_right_hom _ _ _) _ ≪≫ (α_ _ _ _)) ≪≫
-  (α_ _ _ _).symm ≪≫ whiskerRightIso (whisker_exchange_hom _ _ ≪≫
+    (leftZigzagIso η ((G ◁ₚ χ).trans ε)).hom ≅
+    (((λₚ_ F).hom ≫ χ.hom) ≫ (λₚ_ F).inv) ≫ (leftZigzagIso η ε).hom :=
+  eqToIso (by simp [leftZigzag]) ≪≫
+  whiskerLeftIso _ (whiskerLeftIso _ (whiskerLeft_trans_hom _ _ _)) ≪≫
+  whiskerLeftIso _ ((α_ _ _ _).symm ≪≫ whiskerRightIso (associator_naturality_right_hom _ _ _) _ ≪≫
+  (α_ _ _ _)) ≪≫ (α_ _ _ _).symm ≪≫ whiskerRightIso (whisker_exchange_hom _ _ ≪≫
   whiskerRightIso (leftUnitor_conj_hom _) (_ ▷ₚ _).hom ) _ ≪≫ (α_ _ _ _)
   
 def adjointifyCounit_correction_hom {F : B ⥤ᵖ C} {G : C ⥤ᵖ B} (η : Pseudofunctor.id B ≌ F.comp G)
-    (ε : G.comp F ≌ Pseudofunctor.id C) : (((ρₚ_ F).symm).trans
-    ((rightZigzagIso ε.symm η.symm).trans (λₚ_ F))).hom ≅ (((ρₚ_ F).symm).trans
-    (((leftZigzagIso η ε).symm).trans (λₚ_ F))).hom := by
+    (ε : G.comp F ≌ Pseudofunctor.id C) :
+    (((ρₚ_ F).symm).trans ((rightZigzagIso ε.symm η.symm).trans (λₚ_ F))).hom ≅
+    (((ρₚ_ F).symm).trans (((leftZigzagIso η ε).symm).trans (λₚ_ F))).hom := by
   simpa using whiskerLeftIso _ (whiskerRightIso (leftZigzagIso_symm_hom _ _) _)
 
 /-- Creates a biequivalence from pseudo-inverse data. -/
-def mkOfAdjointifyCounit (hom : B ⥤ᵖ C) (inv : C ⥤ᵖ B) (unit : Pseudofunctor.id B ≌ hom.comp inv) 
+def mkOfAdjointifyCounit {hom : B ⥤ᵖ C} {inv : C ⥤ᵖ B} (unit : Pseudofunctor.id B ≌ hom.comp inv) 
     (counit : inv.comp hom ≌ Pseudofunctor.id C) : Biequivalence B C where
   hom := hom
   inv := inv
@@ -228,19 +221,19 @@ def mkOfAdjointifyCounit (hom : B ⥤ᵖ C) (inv : C ⥤ᵖ B) (unit : Pseudofun
     whiskerLeftIso _ (ρ_ _)
 
 /-- Reflexivity of biequivalence. -/
-def refl : Biequivalence B B := mkOfAdjointifyCounit (Pseudofunctor.id B) (Pseudofunctor.id B)
-  (λₚ_ (Pseudofunctor.id B)).symm (λₚ_ (Pseudofunctor.id B))
+def refl : Biequivalence B B := mkOfAdjointifyCounit (λₚ_ _).symm (λₚ_ _)
 
 /-- Symmetry of biequivalence. -/
-def symm (e : Biequivalence B C) : Biequivalence C B := mkOfAdjointifyCounit (e.inv) (e.hom)
+def symm (e : Biequivalence B C) : Biequivalence C B := mkOfAdjointifyCounit
   (Equivalence.mkOfAdjointifyCounit e.counit.counit.symm e.counit.unit.symm)
   (Equivalence.mkOfAdjointifyCounit e.unit.counit.symm e.unit.unit.symm)
 
 /-- Transitivity of biequivalence. -/
 def trans (e₁ : Biequivalence B C) (e₂ : Biequivalence C D) : Biequivalence B D :=
-  mkOfAdjointifyCounit (e₁.hom.comp e₂.hom) (e₂.inv.comp e₁.inv)
-  (e₁.unit.trans ((_ ◁ₚ (λₚ_ _).symm).trans ((_ ◁ₚ (e₂.unit ▷ₚ _)).trans ((_ ◁ₚ (αₚ_ _ _ _)).trans 
-  (αₚ_ _ _ _).symm)))) (((αₚ_ _ _ _).trans ((_ ◁ₚ (αₚ_ _ _ _).symm).trans
-  ((_ ◁ₚ (e₁.counit ▷ₚ _)).trans (_ ◁ₚ (λₚ_ _))))).trans e₂.counit)
+  mkOfAdjointifyCounit
+  (e₁.unit.trans ((_ ◁ₚ (λₚ_ _).symm).trans ((_ ◁ₚ (e₂.unit ▷ₚ _)).trans ((_ ◁ₚ (αₚ_ _ _ _)).trans
+  (αₚ_ _ _ _).symm))))
+  (((αₚ_ _ _ _).trans ((_ ◁ₚ (αₚ_ _ _ _).symm).trans ((_ ◁ₚ (e₁.counit ▷ₚ _)).trans
+  (_ ◁ₚ (λₚ_ _))))).trans e₂.counit)
 
 end Biequivalence
