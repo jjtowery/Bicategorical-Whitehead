@@ -45,9 +45,13 @@ def const (B : Type*) [Bicategory.{w₁, v₁} B] (x : C) : B ⥤ᵖ C where
 
 namespace const
 
-/-- Constant pseudofunctor with domain the singleton bicategory. -/
+/-- Point bicategory. The universe for PUnit is specified explicitly to avoid
+future universe polymorphism issues. -/
+abbrev UnitBicat := LocallyDiscrete (Discrete PUnit.{2})
+
+/-- Constant pseudofunctor with domain the point bicategory. -/
 @[simp]
-def fromPUnit (x : C) := const (LocallyDiscrete (Discrete PUnit)) x
+def fromPUnit (x : C) := const UnitBicat x
 
 /-- Natural transformation induced from a 1-cell. -/
 @[simps]
