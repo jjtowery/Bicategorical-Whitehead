@@ -52,6 +52,13 @@ namespace unit
 /-- The unique object of the point bicategory. -/
 abbrev obj : unit := ⟨⟨PUnit.unit⟩⟩
 
+instance instSubsingleton : Subsingleton unit :=
+  ⟨fun x y => by
+    cases x
+    cases y
+    congr
+    apply Subsingleton.elim⟩
+
 instance instSubsingletonHom (X Y : unit) : Subsingleton (X ⟶ Y) :=
   ⟨fun f g => by
     cases f

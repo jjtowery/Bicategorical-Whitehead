@@ -567,6 +567,30 @@ end mapLeftMapRight -/
 @[simp]
 abbrev LaxSlice (F : A ⥤ᴸ T) (x : T) := Comma F (const.fromPUnit x).toOplax
 
+namespace LaxSlice
+
+/-- Create a lax slice object by just specifying the object and hom. -/
+@[simp]
+def mk' {F : A ⥤ᴸ T} {x : T} (left : A) (f : F.obj left ⟶ x) : LaxSlice F x where
+  left := left
+  right := unit.obj
+  hom := f
+
+/-- Create a lax slice morphism by just specifying the left morphism and hom. -/
+@[simp]
+def mk₁' {F : A ⥤ᴸ T} {x : T} {X Y : LaxSlice F x} (left : X.left ⟶ Y.left)
+    (f : X.hom ≫ 𝟙 _ ⟶ F.map left ≫ Y.hom) : X ⟶ Y where
+  left := left
+  right := eqToHom (by subsingleton)
+  f := f
+
+/-- Create a lax slice 2-cell by just specifying the left morphism and icc. -/
+@[simp]
+def mk₂' {F : A ⥤ᴸ T} {x : T} {X Y : LaxSlice F x} {P Q : X ⟶ Y} (left : P.left ⟶ Q.left)
+    (icc : P.f ≫ (F.map₂ left ▷ Y.hom) = (X.hom ◁ 𝟙 _) ≫ Q.f) : P ⟶ Q where
+  left := left
+  right := eqToHom (by subsingleton)
+
 instance isIso_comp {F : B ⥤ᵖ T} {y : T} {a b c : Comma.LaxSlice F.toLax y} (f : a ⟶ b)
     (g : b ⟶ c) [IsIso f.f] [IsIso g.f] : IsIso (f ≫ g).f := by
   simp only [Pseudofunctor.toLax_toPrelaxFunctor, const.fromPUnit.eq_1,
@@ -577,6 +601,8 @@ instance isIso_comp {F : B ⥤ᵖ T} {y : T} {a b c : Comma.LaxSlice F.toLax y} 
     whiskerLeft_rightUnitor_inv, whiskerRight_id, Pseudofunctor.toLax_mapComp, assoc,
     Iso.hom_inv_id_assoc, Iso.inv_hom_id_assoc]
   infer_instance
+
+end LaxSlice
 
 /-- The lax coslice bicategory. -/
 @[simp]
