@@ -567,6 +567,17 @@ end mapLeftMapRight -/
 @[simp]
 abbrev LaxSlice (F : A ⥤ᴸ T) (x : T) := Comma F (const.fromPUnit x).toOplax
 
+instance isIso_comp {F : B ⥤ᵖ T} {y : T} {a b c : Comma.LaxSlice F.toLax y} (f : a ⟶ b)
+    (g : b ⟶ c) [IsIso f.f] [IsIso g.f] : IsIso (f ≫ g).f := by
+  simp only [Pseudofunctor.toLax_toPrelaxFunctor, const.fromPUnit.eq_1,
+    Pseudofunctor.toOplax_toPrelaxFunctor,
+    const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Comma.LaxSlice, Comma.comp_def,
+    Comma.comp₁_right, const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map,
+    Comma.comp₁_left, Comma.comp₁_f, Pseudofunctor.toOplax_mapComp, const_mapComp, Iso.symm_hom,
+    whiskerLeft_rightUnitor_inv, whiskerRight_id, Pseudofunctor.toLax_mapComp, assoc,
+    Iso.hom_inv_id_assoc, Iso.inv_hom_id_assoc]
+  infer_instance
+
 /-- The lax coslice bicategory. -/
 @[simp]
 abbrev LaxCoslice (G : B ⥤ᵒᵖᴸ T) (x : T) := Comma (const.fromPUnit x).toLax G
@@ -600,6 +611,23 @@ def toLax₂ {F G : A ⥤ᵖ B} (η : Pseudofunctor.StrongTrans F G) :
 def mapRightSlice {x y : T} (F : A ⥤ᴸ T) (f : x ⟶ y) : 
     StrictPseudofunctor (LaxSlice F x) (LaxSlice F y) := 
   mapRight (toLax (const.homStrongTrans f).toOplax)
+
+@[simp]
+instance isIso_mapRightSlice_map_f {F : B ⥤ᴸ T} {x y : T} (u : x ⟶ y) {a b : Comma.LaxSlice F x}
+    (f : a ⟶ b) [IsIso f.f] : IsIso ((Comma.mapRightSlice F u).map f).f := by
+  have : IsIso (Comma.mapRight.map (Comma.toLax (const.homStrongTrans u).toOplax) f).f := by
+    simp only [const.fromPUnit.eq_1, Comma.mapRight.obj_left, Pseudofunctor.toOplax_toPrelaxFunctor,
+      Comma.mapRight.obj_right, const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj,
+      Comma.mapRight.obj_hom, Comma.toLax_app, Pseudofunctor.StrongTrans.toOplax_app,
+      const.homStrongTrans_app, Comma.mapRight.map_right,
+      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map, Comma.mapRight.map_left,
+      Comma.mapRight.map_f, Comma.toLax_naturality, Pseudofunctor.StrongTrans.toOplax_naturality,
+      const.homStrongTrans_naturality, Iso.trans_inv, Iso.symm_inv, whiskerLeft_comp,
+      whiskerLeft_rightUnitor, assoc, triangle_assoc_comp_left_inv_assoc, Iso.hom_inv_id_assoc,
+      isIso_comp_left_iff]
+    infer_instance
+  simpa
+
 
 /-- The change-of-coslice strict pseudofunctor. -/
 @[simp]

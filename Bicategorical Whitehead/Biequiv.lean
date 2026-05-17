@@ -576,7 +576,7 @@ Since `F` is essentially surjective, there is a choice of object `X' : B` and an
 noncomputable def obj (F : B ⥤ᴸ C) (x : C) [hF : IsBiequivalence F] :
     Comma.LaxSlice F x where
   left := _
-  right := ⟨Discrete.mk PUnit.unit⟩
+  right := unit.obj
   hom := (Classical.choice (Classical.choose_spec (hF.essSurj _))).hom
 
 /- It seems that I can't prove the `app_eq_id_self` condition for this construction,
@@ -843,124 +843,91 @@ noncomputable def underlyingCone (F : B ⥤ᴸ C) (x : C) [hF : IsBiequivalence 
         · rfl⟩
 
 @[simp]
+instance isIso_underlyingCone_app_f (F : B ⥤ᴸ C) (x : C) [hF : IsBiequivalence F]
+    (X : Comma.LaxSlice F x) :
+    IsIso ((LaxSlice.incLaxTerminal.underlyingCone F x).app X).f := by
+  unfold LaxSlice.incLaxTerminal.underlyingCone
+  simp only [Pseudofunctor.toLax_toPrelaxFunctor, const.fromPUnit.eq_1, Comma.LaxSlice,
+    Comma.inst.eq_1, Comma.instCategoryHom.eq_1, LaxFunctor.id_toPrelaxFunctor,
+    PrelaxFunctor.id_toPrelaxFunctorStruct, PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_obj,
+    Pseudofunctor.toOplax_toPrelaxFunctor, LaxSlice.incLaxTerminal.obj,
+    const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj,
+    const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map, id_eq, whiskerRightIso_hom,
+    Iso.symm_hom, whiskerLeftIso_hom,Iso.trans_inv,
+    whiskerLeftIso_inv, whiskerRightIso_inv, Comma.id_def, Comma.comp_def, Prefunctor.id_map,
+    Comma.comp₁_left, Comma.id₁_left, Comma.comp₁_right, Comma.id₁_right, Lean.Elab.WF.paramLet,
+    assoc, Iso.hom_inv_id_assoc, isIso_comp_left_iff]    
+  infer_instance
+
+/-- An inc morphism into the inc-lax terminal object is initial. -/
+@[simp]
+noncomputable def isInitial_of_isIso_to_obj (F : B ⥤ᴸ C) [hF : IsBiequivalence F] (y : C)
+    {z : Comma.LaxSlice F y} (k : z ⟶ obj F y) [hk : IsIso k.f] : Limits.IsInitial k := by
+  let fy : F.obj (obj F y).left ≌ y := by
+    simpa using (Classical.choice (Classical.choose_spec (hF.essSurj y)))
+  let hY (Y : z ⟶ obj F y) : z.hom ≅ z.hom ≫ (const.fromPUnit y).toOplax.map Y.right := by
+    simpa using (ρ_ _).symm
+  let β (Y : z ⟶ obj F y) := (asIso k.f).inv ≫ (hY k).inv ≫ (hY Y).hom ≫ Y.f
+  let imageCell (Y : z ⟶ obj F y) := (Equivalence.whiskerRightEquiv _ _ _).symm (β Y)
+  have β_compat (Y : z ⟶ obj F y) : k.f ≫ β Y = Y.f := by simp [β, hY]
+  have imageCell_whisker (Y : z ⟶ obj F y) : imageCell Y ▷ fy.hom = β Y := by
+    simpa [imageCell] using (Equivalence.whiskerRightEquiv _ _ _).right_inv (β Y)
+  let lift (Y : z ⟶ obj F y) := Classical.choose ((hF.fullFaith _ _).2 (imageCell Y))
+  have lift_spec (Y : z ⟶ obj F y) : F.map₂ (lift Y) = imageCell Y := by
+    simp only [const.fromPUnit.eq_1, obj, Pseudofunctor.toOplax_toPrelaxFunctor,
+    const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Comma.LaxSlice, lift]
+    exact Classical.choose_spec ((hF.fullFaith _ _).2 (imageCell Y))
+  exact {
+    desc := fun s => {
+      left := lift s.pt
+      right := eqToHom (by subsingleton)
+      icc := by
+        simp only [const.fromPUnit.eq_1, Pseudofunctor.toOplax_toPrelaxFunctor, obj,
+          const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Comma.LaxSlice,
+          Comma.instCategoryHom.eq_1, Limits.asEmptyCocone_pt,
+          const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map,
+          const_toPrelaxFunctor_toPrelaxFunctorStruct_map₂, whiskerLeft_id, id_comp]
+        change k.f ≫ F.map₂ (lift s.pt) ▷ fy.hom = s.pt.f
+        rw [lift_spec, imageCell_whisker, β_compat] }
+    uniq := fun s m j => by
+      simp only [Comma.LaxSlice, const.fromPUnit.eq_1, obj, Pseudofunctor.toOplax_toPrelaxFunctor,
+        const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Comma.instCategoryHom.eq_1,
+        Limits.asEmptyCocone_pt]
+      ext
+      · simp only [const.fromPUnit.eq_1, obj, Pseudofunctor.toOplax_toPrelaxFunctor,
+          const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Comma.LaxSlice,
+          Comma.instCategoryHom.eq_1, Limits.asEmptyCocone_pt]
+        apply (hF.fullFaith _ _).1
+        simp only
+        have : k.f ≫ F.map₂ m.left ▷ fy.hom = k.f ≫ β s.pt := by
+          calc
+           _ = s.pt.f := by simpa using m.icc
+           _ = _ := (β_compat s.pt).symm
+        have : F.map₂ m.left ▷ fy.hom = β s.pt := by
+          simpa using congrArg (fun θ => (asIso k.f).inv ≫ θ) this
+        have : F.map₂ m.left = imageCell s.pt := by
+          apply (Equivalence.whiskerRightEquiv fy (F.map k.left) (F.map s.pt.left)).injective
+          simpa [imageCell_whisker] using this
+        exact this.trans (lift_spec s.pt).symm
+      · subsingleton }
+
+@[simp]
 noncomputable def app_isInitial (F : B ⥤ᴸ C) (x : C) [hF : IsBiequivalence F]
     (X : Comma.LaxSlice F x) : Limits.IsInitial ((underlyingCone F x).app X) := by
-  let x' := Classical.choose (hF.essSurj x)
-  let fx' := Classical.choice (Classical.choose_spec (hF.essSurj x))
-  let p (z : Comma.LaxSlice F x) := Classical.choose (hF.essFull (z.hom ≫ fx'.inv))
-  let pIso (z : Comma.LaxSlice F x) := Classical.choice (Classical.choose_spec (hF.essFull
-    (z.hom ≫ fx'.inv)))
-  let imageCell {z : Comma.LaxSlice F x} (Y : z ⟶ obj F x) :=
-    (pIso z).hom ≫ (ρ_ z.hom).inv ▷ _ ≫ Y.f ▷ _ ≫ (α_ _ _ _).hom ≫ (whiskerLeftIso _ fx'.unit).inv ≫
-    (ρ_ _).hom
-  let lift {z : Comma.LaxSlice F x} (Y : z ⟶ obj F x) := Classical.choose
-    ((hF.fullFaith (p _) Y.left).2 (imageCell Y))
-  let lift_spec {z : Comma.LaxSlice F x} (Y : z ⟶ obj F x) := Classical.choose_spec
-    ((hF.fullFaith (p _) Y.left).2 (imageCell Y))
-  let preIso := whiskerLeftIso _ fx'.counit.symm ≪≫ (α_ _ _ _).symm
-    ≪≫ whiskerRightIso (pIso X).symm _ 
-  have h (Y : X ⟶ obj F x) : (preIso).hom ≫ imageCell Y ▷ _ = Y.f := by
-    have : (α_ (F.map Y.left) _ _).hom ▷ _ ≫ (α_ _ _ _).hom ≫ _ ◁ fx'.unit.inv ▷ _ ≫
-        _ ◁ (λ_ _).hom = (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom := by
-      simp only [const.fromPUnit.eq_1, obj, Pseudofunctor.toOplax_toPrelaxFunctor,
-        const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Iso.trans_hom,
-        whiskerLeftIso_hom, comp_whiskerLeft, assoc]
-      have : whiskerLeftIso (F.map Y.left) (leftZigzagIso fx'.unit fx'.counit) =
-          whiskerLeftIso _ (λ_ _ ≪≫ (ρ_ _).symm) := by
-        simpa using congrArg (fun η => whiskerLeftIso _ η) fx'.left_triangle
-      have : (whiskerRightIso (α_ (F.map Y.left) _ _) _ ≪≫ α_ _ _ _ ≪≫
-          whiskerLeftIso _ (whiskerRightIso fx'.unit.symm _) ≪≫ whiskerLeftIso _ (λ_ _)).symm =
-          (α_ _ _ _ ≪≫ α_ _ _ _ ≪≫ whiskerLeftIso _ (whiskerLeftIso _ fx'.counit) ≪≫
-          (α_ _ _ _).symm ≪≫ ρ_ _).symm := by
-        ext
-        have := congrArg Iso.hom this
-        simp only [const.fromPUnit.eq_1,  obj, Pseudofunctor.toOplax_toPrelaxFunctor,
-          const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj,  bicategoricalIsoComp,
-          BicategoricalCoherence.assoc_iso, BicategoricalCoherence.whiskerRight_iso,
-          BicategoricalCoherence.refl_iso, Iso.trans_assoc, whiskerLeftIso_hom, Iso.trans_hom,
-          whiskerRightIso_hom, Iso.refl_hom, whiskerRight_comp, id_whiskerRight, id_comp,
-          Iso.inv_hom_id, whiskerLeft_comp, Iso.symm_hom, whiskerLeft_rightUnitor_inv] at this
-        simp only [const.fromPUnit.eq_1,  obj, Pseudofunctor.toOplax_toPrelaxFunctor,
-          const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Iso.trans_symm,
-          Iso.trans_assoc, Iso.trans_hom, Iso.symm_hom, whiskerLeftIso_inv, whiskerRightIso_inv,
-          Iso.symm_inv, Iso.symm_symm_eq]
-        calc
-          _ = _ ◁ (λ_ _).inv ≫ (_ ◁ fx'.unit.hom ▷ _ ≫ _ ◁ (α_ _ _ _).hom ≫
-            _ ◁ _ ◁ fx'.counit.hom) ≫ _ ◁ _ ◁ fx'.counit.inv ≫ (α_ _ _ _).inv ≫
-            (α_ _ _ _).inv := by simp
-          _ = _ ◁ (λ_ _).inv ≫ (_ ◁ (λ_ _).hom ≫ (ρ_ _).inv ≫ (α_ _ _ _).hom) ≫
-            _ ◁ _ ◁ fx'.counit.inv ≫ (α_ _ _ _).inv ≫ (α_ _ _ _).inv := by rw [this]
-          _ = _ := by simp
-      have : whiskerRightIso (α_ (F.map Y.left) _ _) _ ≪≫ α_ _ _ _ ≪≫
-          whiskerLeftIso _ (whiskerRightIso fx'.unit.symm _) ≪≫ whiskerLeftIso _ (λ_ _) =
-          α_ _ _ _ ≪≫ α_ _ fx'.hom (fx'.inv ≫ fx'.hom) ≪≫
-          whiskerLeftIso _ (whiskerLeftIso _ fx'.counit) ≪≫ (α_ _ _ _).symm ≪≫ ρ_ _ := by
-        simpa using congrArg Iso.symm this
-      exact congrArg Iso.hom this
-    simp only [const.fromPUnit.eq_1, Pseudofunctor.toOplax_toPrelaxFunctor,
-      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, obj, Iso.trans_hom,
-      whiskerLeftIso_hom, Iso.symm_hom, whiskerRightIso_hom, Comma.LaxSlice,
-      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map, whiskerLeftIso_inv,
-      comp_whiskerRight, whisker_assoc, assoc, triangle_assoc_comp_right,
-      inv_hom_whiskerRight_assoc, preIso, imageCell]
-    rw [this]
-    have : _ ◁ fx'.counit.inv ≫ (α_ X.hom _ _).inv ≫ (ρ_ _).inv ▷ _ ▷ _ =
-       (ρ_ _).hom ≫ (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv ≫
-       (ρ_ _).inv ▷ _ ▷ _ := by simp
-    have := congrArg (fun η => η ≫ Y.f ▷ _ ▷ _ ≫
-      (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom) this
-    simp only [const.fromPUnit.eq_1,  obj, Pseudofunctor.toOplax_toPrelaxFunctor,
-      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj,
-      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map, assoc] at this
-    rw [this]
-    have {z : C} {r s : z ⟶ x} (β : r ⟶ s) : (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv ≫
-        ((β ▷ _) ▷ _) ≫ (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom = β := by
-      have : (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv ≫ ((β ▷ _) ▷ _) =
-          β ≫ (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv := by
-        have : ((β ▷ _) ▷ _) ≫ (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom =
-            (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom ≫ β := by
-          simp only [Iso.trans_hom, whiskerLeftIso_hom, assoc]
-          rw [associator_naturality_left_assoc, ←whisker_exchange_assoc, rightUnitor_naturality]
-        have := congrArg (fun η => (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv ≫ η ≫
-          (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv) this
-        simp only [assoc, Iso.inv_hom_id_assoc, Iso.hom_inv_id, comp_id] at this
-        exact this
-      simpa using congrArg (fun η => η ≫ (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom) this
-    have : (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).inv ≫ (((ρ_ _).inv ≫ Y.f) ▷ _ ▷ _) ≫
-        (α_ _ _ _ ≪≫ whiskerLeftIso _ fx'.counit ≪≫ ρ_ _).hom = (ρ_ _).inv ≫ Y.f := by
-      simpa using this ((ρ_ _).inv ≫ Y.f)
-    simpa using congrArg (fun η => (ρ_ _).hom ≫ η) this
-  refine Limits.IsInitial.ofUniqueHom ?_ ?_
-  --want to just exact here but for some reason it doesn't like that.
-  · intro Y
-    exact {
-      left := lift Y
-      right := 𝟙 _
-      icc := by
-        simp only [Comma.LaxSlice, const.fromPUnit.eq_1, obj, Pseudofunctor.toOplax_toPrelaxFunctor,
-          const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj] at lift_spec
-        rw [lift_spec Y]
-        simpa [preIso] using h Y }
-  · intro Y m
-    have h₁ : preIso.hom ≫ F.map₂ m.left ▷ _ = Y.f := by simpa [preIso] using m.icc
-    have h₂ : F.map₂ m.left ▷ _ = imageCell Y ▷ fx'.hom := by
-      calc
-       _ = preIso.inv ≫ Y.f := by simpa using congrArg (fun η => preIso.inv ≫ η) h₁
-       _ = _ := by simpa using (congrArg (fun η => preIso.inv ≫ η) (h Y)).symm
-    simp only [Comma.LaxSlice, const.fromPUnit.eq_1, Comma.inst.eq_1, Comma.instCategoryHom.eq_1,
+  have : IsIso ((underlyingCone F x).app X).f := by
+    unfold underlyingCone
+    simp only [const.fromPUnit.eq_1, Comma.LaxSlice, Comma.inst.eq_1, Comma.instCategoryHom.eq_1,
       LaxFunctor.id_toPrelaxFunctor, PrelaxFunctor.id_toPrelaxFunctorStruct,
-      PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_obj, obj,
-      Pseudofunctor.toOplax_toPrelaxFunctor,
-      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj,
-      Pseudofunctor.toLax_toPrelaxFunctor, underlyingCone,
-      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map, id_eq, Iso.trans_inv,
-      whiskerLeftIso_inv, whiskerRightIso_inv, Comma.id_def, Comma.comp_def, Prefunctor.id_map,
-      Comma.comp₁_left, Comma.id₁_left, whiskerRightIso_hom, Iso.symm_hom, whiskerLeftIso_hom,
-      Comma.comp₁_right, Comma.id₁_right]
-    ext
-    · apply (hF.fullFaith _ _).1
-      exact ((Equivalence.whiskerRightEquiv _ _ _).injective h₂).trans (lift_spec Y).symm
-    · rfl
+      PrelaxFunctorStruct.id_toPrefunctor, Prefunctor.id_obj, Pseudofunctor.toOplax_toPrelaxFunctor,
+      obj, const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj,
+      Pseudofunctor.toLax_toPrelaxFunctor,
+      const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map, id_eq, whiskerRightIso_hom,
+      Iso.symm_hom, whiskerLeftIso_hom, Iso.trans_inv, whiskerLeftIso_inv, whiskerRightIso_inv,
+      Comma.id_def, Comma.comp_def, Prefunctor.id_map, Comma.comp₁_left, Comma.id₁_left,
+      Comma.comp₁_right, Comma.id₁_right, Lean.Elab.WF.paramLet, assoc, Iso.hom_inv_id_assoc,
+      isIso_comp_left_iff]
+    infer_instance
+  exact isInitial_of_isIso_to_obj F x ((underlyingCone F x).app X)
 
 @[simp]
 noncomputable def app (F : B ⥤ᴸ C) (x : C) [hF : IsBiequivalence F]
@@ -1129,6 +1096,26 @@ noncomputable def cone (F : B ⥤ᵖ C) (x : C) [hF : IsBiequivalence F.toLax] :
 theorem cone_app_self (F : B ⥤ᵖ C) (x : C) [hF : IsBiequivalence F.toLax] :
     (cone F x).app (obj F.toLax x) = 𝟙 (obj F.toLax x) := by simp
 
+@[simp]
+instance isIso_app_f (F : B ⥤ᵖ C) (x : C) [hF : IsBiequivalence F.toLax]
+    (X : Comma.LaxSlice F.toLax x) : IsIso (LaxSlice.incLaxTerminal.app F.toLax x X).f := by
+  unfold LaxSlice.incLaxTerminal.app
+  by_cases hX : X = LaxSlice.incLaxTerminal.obj F.toLax x
+  · subst X
+    rw [dif_pos rfl]
+    have : IsIso ((𝟙 (LaxSlice.incLaxTerminal.obj F.toLax x) :
+        LaxSlice.incLaxTerminal.obj F.toLax x ⟶ LaxSlice.incLaxTerminal.obj F.toLax x).f) := by
+      simp only [Pseudofunctor.toLax_toPrelaxFunctor, const.fromPUnit.eq_1,
+        LaxSlice.incLaxTerminal.obj, Pseudofunctor.toOplax_toPrelaxFunctor,
+        const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_obj, Comma.LaxSlice, Comma.id_def,
+        Comma.id₁_right, const_toPrelaxFunctor_toPrelaxFunctorStruct_toPrefunctor_map,
+        Comma.id₁_left, Comma.id₁_f, Pseudofunctor.toOplax_mapId, const_mapId, Iso.refl_hom,
+        whiskerLeft_id, Pseudofunctor.toLax_mapId, id_comp, isIso_comp_left_iff]
+      infer_instance
+    simpa
+  · rw [dif_neg hX]
+    exact isIso_underlyingCone_app_f F.toLax x X
+
 end LaxSlice.incLaxTerminal
 
 /-- The lax slice `F ↓ X` has an inc-lax terminal object for `F` essentially surjective,
@@ -1139,5 +1126,32 @@ noncomputable def LaxSlice.incLaxTerminal (F : B ⥤ᵖ C) (x : C) [hF : IsBiequ
   cone := LaxSlice.incLaxTerminal.cone F x
   inc := ⟨fun X => by simpa using LaxSlice.incLaxTerminal.isInitial F x X⟩
   app_self_eq_id := LaxSlice.incLaxTerminal.cone_app_self F x
+
+namespace mapRightSlice.PreservesInitialComponents
+
+/-- Let `F` be a pseudofunctor that is essentially surjective, essentially full, and fully faithful,
+and `u : X ⟶ Y` a 1-cell in `C`. For any `(A, f_A)` in the lax slice `F↓ X`, there is an initial
+1-cell `(p_A, θ_A)` from `(A, f_A)` to the inc-lax terminal object.
+Similarly, for `F ↓ u` the change of slice strict pseudofunctor, there is an initial 1-cell
+`(u, θ_u)` from `(F↓ u)(X, f_X)` to the inc-lax terminal object in `F ↓ Y`.
+This shows then that the composite of `(u, θ_u)` with `(F ↓ u)(p_A, θ_A)` is initial. -/
+@[simp]
+noncomputable def comp_ofInitial_isInitial (F : B ⥤ᵖ C) [hF : IsBiequivalence F.toLax]
+    {x y : C} (u : x ⟶ y) (z : Comma.LaxSlice F.toLax x) :
+    Limits.IsInitial ((Comma.mapRightSlice F.toLax u).map
+    (LaxSlice.incLaxTerminal.app F.toLax x z) ≫ LaxSlice.incLaxTerminal.app F.toLax y
+    ((Comma.mapRightSlice F.toLax u).obj (LaxSlice.incLaxTerminal.obj F.toLax x))) := by
+  apply LaxSlice.incLaxTerminal.isInitial_of_isIso_to_obj F.toLax y
+  
+end mapRightSlice.PreservesInitialComponents 
+
+/-- For `F` a pseudofunctor that is essentially surjective, essentially full, and fully faithful,
+and `u : X ⟶ Y` a 1-cell in `C`, the change of slice `F ↓ u` preserves initial components -/
+@[simp]
+noncomputable def mapRightSlice.PreservesInitialComponents (F : B ⥤ᵖ C)
+    [hF : IsBiequivalence F.toLax] {x y : C} (u : x ⟶ y) : PreservesInitialComponents
+    (Comma.mapRightSlice F.toLax u).toLax (LaxSlice.incLaxTerminal F x)
+    (LaxSlice.incLaxTerminal F y) where
+  comp_isInitial X := mapRightSlice.PreservesInitialComponents.comp_ofInitial_isInitial F u X 
 
 end IsBiequivalence

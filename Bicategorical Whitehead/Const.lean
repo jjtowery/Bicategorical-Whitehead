@@ -43,15 +43,36 @@ def const (B : Type*) [Bicategory.{w₁, v₁} B] (x : C) : B ⥤ᵖ C where
   mapId _ := Iso.refl _
   mapComp _ _ := (ρ_ _).symm
 
-namespace const
-
 /-- Point bicategory. The universe for PUnit is specified explicitly to avoid
 future universe polymorphism issues. -/
-abbrev UnitBicat := LocallyDiscrete (Discrete PUnit.{2})
+abbrev unit := LocallyDiscrete (Discrete PUnit.{2})
+
+namespace unit
+
+/-- The unique object of the point bicategory. -/
+abbrev obj : unit := ⟨⟨PUnit.unit⟩⟩
+
+instance instSubsingletonHom (X Y : unit) : Subsingleton (X ⟶ Y) :=
+  ⟨fun f g => by
+    cases f
+    cases g
+    congr
+    apply Subsingleton.elim⟩
+
+instance instSubsingletonHom₂ {X Y : unit} (f g : X ⟶ Y) : Subsingleton (f ⟶ g) :=
+  ⟨fun α β => by
+    cases α
+    cases β
+    congr
+    apply Subsingleton.elim⟩
+
+end unit
+
+namespace const
 
 /-- Constant pseudofunctor with domain the point bicategory. -/
 @[simp]
-def fromPUnit (x : C) := const UnitBicat x
+def fromPUnit (x : C) := const unit x
 
 /-- Natural transformation induced from a 1-cell. -/
 @[simps]
